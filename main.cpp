@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "strategy.h"
+
 enum class Direction : char {
     LEFT = 'l',
     RIGHT = 'r'
@@ -92,6 +94,8 @@ int main() {
 
     Reader reader = {};
 
+    IStrategy my_stat;
+    
     while(true) {
         readData(reader);
         
@@ -99,7 +103,7 @@ int main() {
             break;
             
         // TODO logika jobb mint a semmitteves
-        std::string command = "PASS";
+        std::string command = my_stat.step();
         
         // Ha szeretnetek debug uzenetet kuldeni, akkor megtehetitek.
         // Vigyazzatok, mert maximalisan csak 1024 * 1024 bajtot kaptok vissza
