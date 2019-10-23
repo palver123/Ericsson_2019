@@ -4,7 +4,7 @@
 #include <string>
 class IStrategy
 {
- protected:
+ public:
   virtual std::string step();
   virtual ~IStrategy() = default;
 
