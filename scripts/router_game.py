@@ -12,7 +12,7 @@ class GameFrame:
         self.command = None
         self.message = None
         self.request_id = None
-        self.prev_error = None
+        self.prev_error = ""
         self.routers = []
 
 
@@ -76,7 +76,7 @@ def read_next(inp):
             res = is_router(line)
             next_frame.routers.append(Router(int(res.group(1)), res.group(2)))
         elif is_prev_error(line):
-            next_frame.prev_error = is_prev_error(line).group(1)
+            next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
         elif is_writen_ended(line) or is_read_start(line):
             pass
         else:
