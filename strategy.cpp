@@ -12,12 +12,12 @@ std::string IStrategy::step(const Reader& turnData) {
 
 int IStrategy::getRandom(int from, int to_exclusive)
 {
-    auto d = to_exclusive - from;
-    return static_cast<int>(my_random())  % d + from;
+    unsigned long long d = static_cast<unsigned long long>(to_exclusive - from);
+    return static_cast<int>(my_random()  % d) + from;
 }
 
 ll IStrategy::getRandomLL(ll from, ll to_exclusive)
 {
-    auto d = to_exclusive - from;
-    return my_random() % d + from;
+    unsigned long long d = static_cast<unsigned long long>(to_exclusive - from);
+    return static_cast<ll>(my_random()  % d) + from;
 }
