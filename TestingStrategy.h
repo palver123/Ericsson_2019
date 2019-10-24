@@ -5,7 +5,7 @@
 class TestingStrategy : public IStrategy
 {
 public:
-    TestingStrategy();
+    TestingStrategy() = default;
 
     // IStrategy interface
 public:

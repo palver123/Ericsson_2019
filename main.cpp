@@ -1,7 +1,7 @@
 
 #include "turnData.h"
 #include "strategy.h"
-
+#include "TestingStrategy.h"
 
 int main() {
     char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
@@ -13,7 +13,7 @@ int main() {
 
     Reader turnData = {};
 
-    IStrategy my_stat;
+    TestingStrategy my_stat;
     
     while(true) {
         readData(turnData);
