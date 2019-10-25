@@ -17,7 +17,7 @@ std::string TestingStrategy::step(Reader &turnData)
 
         string solution{};
         solution.reserve(solutionLength);
-        for (size_t i = 1; i < Reader::_allReceivedPieces.size(); ++i)
+        for (size_t i = 0; i < Reader::_allReceivedPieces.size(); ++i)
             solution.append(Reader::_allReceivedPieces[i].message);
 
         return "SOLUTION " + solution;
@@ -27,18 +27,15 @@ std::string TestingStrategy::step(Reader &turnData)
     {
         // Try to ask for a new packet
         std::array<bool, NSLOTS> slotTaken {};
-        auto maxPckIdx = 0u;
         for (const auto& data : turnData.dataArray)
         {
-            if (data.dataIndex > maxPckIdx)
-                maxPckIdx = data.dataIndex;
             if (data.currRouter == MY_ROUTER)
                 slotTaken[data.currStoreId] = true;
         }
 
         for (auto slot = 0; slot < NSLOTS; slot++)
             if (!slotTaken[slot] && turnData.routerBits[MY_ROUTER][slot])
-                return fmt::format("CREATE {} {}", slot, maxPckIdx);
+                return fmt::format("CREATE {} {}", slot, ++_requestCounter);
     }
 
     // Try to move

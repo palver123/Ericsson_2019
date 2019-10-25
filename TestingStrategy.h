@@ -4,6 +4,8 @@
 
 class TestingStrategy : public IStrategy
 {
+    int _requestCounter;
+
 public:
     TestingStrategy() = default;
 
