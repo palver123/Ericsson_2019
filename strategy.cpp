@@ -4,7 +4,7 @@
 
 static std::mt19937_64 my_random{std::random_device{}()};
 
-std::string IStrategy::step(const Reader& turnData) {
+std::string IStrategy::step(Reader& turnData) {
     static int tc = 0;
     std::cerr << "Turn " << tc++ << std::endl;
     return "PASS";

@@ -3,8 +3,7 @@
 #include <array>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <sstream>
+#include "constants.h"
 
 enum class Direction : char {
     LEFT = 'l',
@@ -19,6 +18,8 @@ struct Data {
     unsigned int fromRouter;
     unsigned int toRouter;
     Direction dir;
+
+    bool is_request() const;
 };
 
 struct MessagePiece {
@@ -29,10 +30,11 @@ struct MessagePiece {
 struct Reader {
     std::array<unsigned int, 3> data;
     std::string previous;
-    std::array<std::array<bool, 10>, 14> routerBits;
+    std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
     std::vector<Data> dataArray;
     std::vector<MessagePiece> receivedPieces;
     bool hasEnd;
+    bool gotEmptyMessagePiece;
 };
 
 

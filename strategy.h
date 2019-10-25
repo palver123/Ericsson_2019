@@ -2,12 +2,12 @@
 
 #include "turnData.h"
 #include "basics.h"
-#include <iostream>
 #include <string>
+
 class IStrategy
 {
  public:
-  virtual std::string step(const Reader& turnData);
+  virtual std::string step(Reader& turnData);
   virtual ~IStrategy() = default;
 
 

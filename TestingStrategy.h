@@ -8,6 +8,5 @@ public:
     TestingStrategy() = default;
 
     // IStrategy interface
-public:
-    std::string step(const Reader &turnData) override;
+    std::string step(Reader &turnData) override;
 };
