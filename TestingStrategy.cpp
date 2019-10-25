@@ -35,7 +35,7 @@ std::string TestingStrategy::step(Reader &turnData)
         }
 
         for (auto slot = 0; slot < NSLOTS; slot++)
-            if (!slotTaken[slot])
+            if (!slotTaken[slot] && turnData.routerBits[MY_ROUTER][slot])
                 return fmt::format("CREATE {} {}", slot, maxPckIdx);
     }
 
