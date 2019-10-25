@@ -2,9 +2,9 @@ import re
 
 
 class Router:
-    def __init__(self, id, stat):
+    def __init__(self, id, is_open):
         self.id = id
-        self.stat = stat
+        self.is_open = is_open
 
 
 class GameFrame:
@@ -40,7 +40,7 @@ def is_frame_end(txt, pattern=re.compile(r'[.]')):
     return pattern.match(txt)
 
 
-def is_my_command(txt, pattern=re_timestamp("Readed:(.*)$")):
+def is_my_command(txt, pattern=re_timestamp("Readed: (\d+)\s+(\d+)\s+(\d+)\s+(.*)$")):
     return pattern.match(txt)
 
 
@@ -69,7 +69,7 @@ def read_next(inp):
         elif is_frame_end(line):
             return next_frame
         elif is_my_command(line):
-            next_frame.command = is_my_command(line).group(1)
+            next_frame.command = is_my_command(line).group(4)
         elif is_request_id(line):
             next_frame.request_id = is_request_id(line).group(1)
         elif is_router(line):
