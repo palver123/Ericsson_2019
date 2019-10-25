@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 
+std::vector<MessagePiece> Reader::_allReceivedPieces;
+
 bool Data::is_request() const
 {
     return toRouter == fromRouter;
@@ -50,6 +52,7 @@ void readData(Reader &to) {
         else if (!line.rfind("MESSAGE")) {
             MessagePiece& msg = to.receivedPieces.emplace_back();
             std::istringstream(std::move(line).substr(8)) >> msg.index >> msg.message;
+            Reader::_allReceivedPieces.push_back(msg);
             if (msg.message.empty())
                 to.gotEmptyMessagePiece = true;
         }

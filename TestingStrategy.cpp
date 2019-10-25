@@ -8,21 +8,21 @@ std::string TestingStrategy::step(Reader &turnData)
         // Guess the solution
         size_t solutionLength = 0;
         std::cerr << "Before sorting: " << std::endl;
-        for (const auto& receivedPiece : turnData.receivedPieces)
+        for (const auto& receivedPiece : Reader::_allReceivedPieces)
         {
             std::cerr << '\t' <<  receivedPiece.index << " " << receivedPiece.message << std::endl;
             solutionLength += receivedPiece.message.size();
         }
 
         std::sort(
-            turnData.receivedPieces.begin(),
-            turnData.receivedPieces.end(),
+            Reader::_allReceivedPieces.begin(),
+            Reader::_allReceivedPieces.end(),
             [] (const MessagePiece& m1, const MessagePiece& m2) { return m1.index < m2.index; });
 
         std::cerr << "After sorting: " << std::endl;
         string solution{};
         solution.reserve(solutionLength);
-        for (const auto& receivedPiece : turnData.receivedPieces)
+        for (const auto& receivedPiece : Reader::_allReceivedPieces)
         {
             std::cerr << '\t' << receivedPiece.index << " " << receivedPiece.message << std::endl;
             solution.append(receivedPiece.message);

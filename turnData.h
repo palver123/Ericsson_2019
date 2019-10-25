@@ -28,6 +28,8 @@ struct MessagePiece {
 };
 
 struct Reader {
+    static std::vector<MessagePiece> _allReceivedPieces;
+
     std::array<unsigned int, 3> data;
     std::string previous;
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
