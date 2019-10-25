@@ -22,5 +22,22 @@ std::string TestingStrategy::step(Reader &turnData)
         return fmt::format("SOLUTION {}", solution);
     }
 
+    if (turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
+    {
+        std::array<bool, NSLOTS> slotTaken {};
+        auto maxPckIdx = 0u;
+        for (const auto& data : turnData.dataArray)
+        {
+            if (data.dataIndex > maxPckIdx)
+                maxPckIdx = data.dataIndex;
+            if (data.currRouter == MY_ROUTER)
+                slotTaken[data.currStoreId] = true;
+        }
+
+        for (auto slot = 0; slot < NSLOTS; slot++)
+            if (!slotTaken[slot])
+                return fmt::format("CREATE {} {}", slot, maxPckIdx);
+    }
+
     return fmt::format("MOVE {} {}", getRandom(0, NROUTERS), getRandom(0,1) ? "^" : "v");
 }
