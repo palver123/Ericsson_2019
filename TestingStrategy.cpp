@@ -5,6 +5,7 @@ std::string TestingStrategy::step(Reader &turnData)
 {
     if (turnData.gotEmptyMessagePiece)
     {
+        // Guess the solution
         size_t solutionLength = 0;
         for (const auto& receivedPiece : turnData.receivedPieces)
             solutionLength += receivedPiece.message.size();
@@ -26,6 +27,7 @@ std::string TestingStrategy::step(Reader &turnData)
 
     if (turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
     {
+        // Try to ask for a new packet
         std::array<bool, NSLOTS> slotTaken {};
         auto maxPckIdx = 0u;
         for (const auto& data : turnData.dataArray)
@@ -41,5 +43,12 @@ std::string TestingStrategy::step(Reader &turnData)
                 return fmt::format("CREATE {} {}", slot, maxPckIdx);
     }
 
-    return fmt::format("MOVE {} {}", getRandom(0, NROUTERS), getRandom(0,1) ? "^" : "v");
+    // Try to move
+    for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
+        for (const auto& data : turnData.dataArray)
+            if (data.currRouter == routerIdx && data.fromRouter == MY_ROUTER)
+                return fmt::format("MOVE {} {}", routerIdx, getRandom(0, 1) ? "^" : "v");
+
+    // Do nothing
+    return "PASS";
 }
