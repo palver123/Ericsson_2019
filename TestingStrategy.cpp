@@ -7,22 +7,29 @@ std::string TestingStrategy::step(Reader &turnData)
     {
         // Guess the solution
         size_t solutionLength = 0;
+        std::cerr << "Before sorting: " << std::endl;
         for (const auto& receivedPiece : turnData.receivedPieces)
+        {
+            std::cerr << '\t' <<  receivedPiece.index << " " << receivedPiece.message << std::endl;
             solutionLength += receivedPiece.message.size();
+        }
 
         std::sort(
             turnData.receivedPieces.begin(),
             turnData.receivedPieces.end(),
             [] (const MessagePiece& m1, const MessagePiece& m2) { return m1.index < m2.index; });
 
-        //string solution{};
-        //solution.reserve(solutionLength);
-        stringstream ss{"SOLUTION "};
+        std::cerr << "After sorting: " << std::endl;
+        string solution{};
+        solution.reserve(solutionLength);
         for (const auto& receivedPiece : turnData.receivedPieces)
-            ss << receivedPiece.message;
-            //solution.append(receivedPiece.message);
+        {
+            std::cerr << '\t' << receivedPiece.index << " " << receivedPiece.message << std::endl;
+            solution.append(receivedPiece.message);
+        }
+        std::cerr << "variable 'solution' contains: " << solution << std::endl;
 
-        return ss.str();
+        return "SOLUTION " + solution;
     }
 
     if (turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
