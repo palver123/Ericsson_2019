@@ -14,12 +14,14 @@ std::string TestingStrategy::step(Reader &turnData)
             turnData.receivedPieces.end(),
             [] (const MessagePiece& m1, const MessagePiece& m2) { return m1.index < m2.index; });
 
-        string solution{};
-        solution.reserve(solutionLength);
+        //string solution{};
+        //solution.reserve(solutionLength);
+        stringstream ss{"SOLUTION "};
         for (const auto& receivedPiece : turnData.receivedPieces)
-            solution.append(receivedPiece.message);
+            ss << receivedPiece.message;
+            //solution.append(receivedPiece.message);
 
-        return fmt::format("SOLUTION {}", solution);
+        return ss.str();
     }
 
     if (turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
