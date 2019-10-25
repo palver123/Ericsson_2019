@@ -17,8 +17,8 @@ std::string TestingStrategy::step(Reader &turnData)
 
         string solution{};
         solution.reserve(solutionLength);
-        for (const auto& receivedPiece : Reader::_allReceivedPieces)
-            solution.append(receivedPiece.message);
+        for (size_t i = 1; i < Reader::_allReceivedPieces.size(); ++i)
+            solution.append(Reader::_allReceivedPieces[i].message);
 
         return "SOLUTION " + solution;
     }
