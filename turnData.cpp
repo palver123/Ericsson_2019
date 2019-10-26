@@ -5,7 +5,7 @@
 using namespace std;
 
 map<int, MessagePiece> Reader::_allReceivedPieces;
-int Reader::_lowestEmptyAnswer = 1;
+int Reader::_lowestEmptyAnswer = -1;
 
 bool Data::is_request() const
 {
