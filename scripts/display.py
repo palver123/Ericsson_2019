@@ -45,18 +45,25 @@ class DisplayWindow:
 
                 if event.key == K_LEFT:
                     self.act_index = max(0, self.act_index - 1)
+                    return True
                 if event.key == K_RIGHT:
                     self.act_index = min(maxFrame, self.act_index + 1)
+                    return True
 
                 if event.key == K_g:
                     self.act_index = max(0, self.act_index - 10)
+                    return True
                 if event.key == K_t:
                     self.act_index = min(lenmaxFrame, self.act_index + 10)
+                    return True
 
                 if event.key == K_DOWN:
                     self.act_index = max(0, self.act_index - 100)
+                    return True
                 if event.key == K_UP:
                     self.act_index = min(maxFrame, self.act_index + 100)
+                    return True
+        return False
 
     def draw_router(self, router, lt_coord):
         for i in range(0, self.block_per_router):
@@ -107,7 +114,9 @@ class DisplayWindow:
         pygame.display.update()
 
     def run(self):
+        self.draw()
+        pygame.display.update()
         while True:
-            self.event_loop()
-            self.draw()
-            pygame.display.update()
+            if (self.event_loop()):
+                self.draw()
+                pygame.display.update()
