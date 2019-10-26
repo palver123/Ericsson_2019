@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import my_globals
 import router_game
 import display
 
@@ -14,6 +15,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    my_globals.initialize()
     game_log = router_game.load_log(args.log)
     window = display.DisplayWindow(game_log)
     window.run()

@@ -1,4 +1,5 @@
 import re
+import my_globals
 
 
 class Router:
@@ -71,6 +72,10 @@ def is_data(txt, pattern=re.compile(r"DATA (\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)
     return pattern.match(txt)
 
 
+def is_message_piece(txt, pattern=re.compile(r"MESSAGE (.+)$")):
+    return pattern.match(txt)
+
+
 def is_prev_error(txt, pattern=re.compile(r"PREVIOUS (.*)$")):
     return pattern.match(txt)
 
@@ -93,6 +98,9 @@ def read_next(inp):
         elif is_data(line):
             res = is_data(line)
             next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), int(res.group(4)), int(res.group(5)), int(res.group(6)), line.endswith('r')))
+        elif is_message_piece(line):
+            res = is_message_piece(line)
+            my_globals.receivedMessagesPieces.append(res.group(1))
         elif is_prev_error(line):
             next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
         elif is_writen_ended(line) or is_read_start(line):
@@ -109,4 +117,5 @@ def load_log(file_path: str) -> GameLog:
             if frame is None:
                 break
             game_frames.append(frame)
+    my_globals.receivedMessagesPieces.sort()
     return GameLog(game_frames)

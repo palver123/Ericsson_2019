@@ -2,6 +2,9 @@ from router_game import GameLog
 import pygame
 from pygame.locals import *
 import sys
+import my_globals
+
+widthForMessagePieceColumn = 135 * 3
 
 class Router:
     pass
@@ -18,7 +21,7 @@ class DisplayWindow:
         self.space_height = 20
         self.font = pygame.font.SysFont("Calibri", 18)
         # calculated params
-        self.window_width = self.router_count[0] * (self.router_width + self.space_width) - self.space_width
+        self.window_width = self.router_count[0] * (self.router_width + self.space_width) - self.space_width + widthForMessagePieceColumn
         self.window_height = self.router_count[1] * (
                 self.router_block_height * self.block_per_router + self.space_height
         ) + self.space_height * 3
@@ -87,6 +90,16 @@ class DisplayWindow:
         self.draw_message("Tick: " + str(self.act_index), 0)
         self.draw_message("Previous command: " + str(frame.command), 1)
         self.draw_message("Server response: " + frame.prev_error, 2)
+        x_msgPack_column = self.window_width - widthForMessagePieceColumn
+        yMinus = 0
+        for i in range (0, len(my_globals.receivedMessagesPieces)):
+            y = i * self.space_height - yMinus
+            topLeft = (x_msgPack_column, y)
+            text = self.font.render(my_globals.receivedMessagesPieces[i], True, (50, 50, 50))
+            self.screen.blit(text, topLeft)
+            if (y >= self.window_height - self.space_height):
+                yMinus = yMinus + self.window_height
+                x_msgPack_column = x_msgPack_column + 135
         pygame.display.update()
 
     def run(self):
