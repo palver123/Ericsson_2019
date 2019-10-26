@@ -14,3 +14,5 @@
 
 # not ignore java files
 !**/*.java
+/CMakeFiles/3.12.18081601-MSVC_2/*
+/CMakeFiles/feature_tests.c
