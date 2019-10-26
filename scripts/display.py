@@ -65,6 +65,15 @@ class DisplayWindow:
                     return True
         return False
 
+    def calc_router_topLeft(self, routerId):
+        ys = routerId // self.router_count[0]
+        xs = routerId % self.router_count[0]
+        if (ys > 0):
+            xs = 6 - xs
+        top = ys * (self.router_block_height * self.block_per_router + self.space_height)
+        left = xs * (self.router_width + self.space_width)
+        return (left, top)
+
     def draw_router(self, router, lt_coord):
         for i in range(0, self.block_per_router):
             left = lt_coord[0]
@@ -93,11 +102,7 @@ class DisplayWindow:
         if len(frame.routers) != self.router_count[0] * self.router_count[1]:
             raise Exception("Invalid number of routers: {}".format(len(frame.routers)))
         for i in range (0, len(frame.routers)):
-            ys = i // self.router_count[0]
-            xs = i % self.router_count[0]
-            top = ys * (self.router_block_height * self.block_per_router + self.space_height)
-            left = xs * (self.router_width + self.space_width)
-            self.draw_router(frame.routers[i], (left, top))
+            self.draw_router(frame.routers[i], self.calc_router_topLeft(i))
         self.draw_message("Tick: " + str(self.act_index), 0)
         self.draw_message("Previous command: " + str(frame.command), 1)
         self.draw_message("Server response: " + frame.prev_error, 2)
