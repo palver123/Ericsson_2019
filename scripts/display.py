@@ -81,6 +81,18 @@ class DisplayWindow:
             color = (127, 255, 127) if router.is_open[i] == "1" else (255, 127, 127)
             pygame.draw.rect(self.screen, color, (left, top, self.router_width, self.router_block_height))
 
+    def draw_package(self, package):
+        inset = 2
+        lt_coord_of_router = self.calc_router_topLeft(package.currRouter)
+        left = lt_coord_of_router[0] + self.router_width / 3 + inset
+        top = lt_coord_of_router[1] + self.router_block_height * package.currStore + inset
+        isAnswer = package.toRouter == package.fromRouter;
+        bgColor = (127, 255, 255) if isAnswer else (255, 255, 127)
+        dirText = "<<" if package.clockwise else ">>"
+        renderedText = self.font.render(dirText + package.messageId + dirText, True, (10, 10, 10), bgColor)
+        margin = 3
+        self.screen.blit(renderedText, (left + margin, top + margin))
+
     def draw_error(self, error_txt):
         top = self.router_count[1] * (self.router_block_height * self.block_per_router + self.space_height)
         left = 0
@@ -103,6 +115,8 @@ class DisplayWindow:
             raise Exception("Invalid number of routers: {}".format(len(frame.routers)))
         for i in range (0, len(frame.routers)):
             self.draw_router(frame.routers[i], self.calc_router_topLeft(i))
+        for i in range (0, len(frame.dataPackages)):
+            self.draw_package(frame.dataPackages[i])
         self.draw_message("Tick: " + str(self.act_index), 0)
         self.draw_message("Previous command: " + str(frame.command), 1)
         self.draw_message("Server response: " + frame.prev_error, 2)

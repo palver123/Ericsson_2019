@@ -97,7 +97,7 @@ def read_next(inp):
             next_frame.routers.append(Router(int(res.group(1)), res.group(2)))
         elif is_data(line):
             res = is_data(line)
-            next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), int(res.group(4)), int(res.group(5)), int(res.group(6)), line.endswith('r')))
+            next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), res.group(4), int(res.group(5)), int(res.group(6)), line.endswith('r')))
         elif is_message_piece(line):
             res = is_message_piece(line)
             my_globals.receivedMessagesPieces.append(res.group(1))
