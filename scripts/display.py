@@ -39,6 +39,10 @@ class DisplayWindow:
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
                 if event.key == K_LEFT:
                     self.act_index = max(0, self.act_index - 1)
                 if event.key == K_RIGHT:
