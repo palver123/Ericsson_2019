@@ -118,7 +118,10 @@ class DisplayWindow:
             self.draw_router(frame.routers[i], self.calc_router_topLeft(i))
         for i in range (0, len(frame.dataPackages)):
             self.draw_package(frame.dataPackages[i])
-        self.draw_message("Tick: " + str(self.act_index), 0)
+        if (self.act_index == 0):
+            self.draw_message("Initial state", 0)
+        else:
+            self.draw_message("After tick: " + str(self.act_index - 1), 0)
         self.draw_message("Previous command: " + str(frame.command), 1)
         self.draw_message("Server response: " + frame.prev_error, 2)
         x_msgPack_column = self.window_width - widthForMessagePieceColumn
