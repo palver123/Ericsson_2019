@@ -1,29 +1,43 @@
 #include "TestingStrategy.h"
 
 
-std::string TestingStrategy::step(Reader &turnData)
+bool have_all_message_pieces()
 {
-    if (turnData.gotEmptyMessagePiece)
+    auto highestReceivedIdx = -1;
+    for (const auto& receivedPiece : Reader::_allReceivedPieces)
     {
-        // Guess the solution
-        size_t solutionLength = 0;
-        for (const auto& receivedPiece : Reader::_allReceivedPieces)
-            solutionLength += receivedPiece.message.size();
-
-        std::sort(
-            Reader::_allReceivedPieces.begin(),
-            Reader::_allReceivedPieces.end(),
-            [] (const MessagePiece& m1, const MessagePiece& m2) { return m1.index < m2.index; });
-
-        string solution{};
-        solution.reserve(solutionLength);
-        for (size_t i = 0; i < Reader::_allReceivedPieces.size(); ++i)
-            solution.append(Reader::_allReceivedPieces[i].message);
-
-        return "SOLUTION " + solution;
+        if (receivedPiece.first - highestReceivedIdx > 1)
+            return false; // A packet is missing
+        highestReceivedIdx = receivedPiece.first;
     }
 
-    if (turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
+    return highestReceivedIdx = Reader::_lowestEmptyAnswer - 1;
+}
+
+std::string TestingStrategy::step(Reader &turnData)
+{
+    if (Reader::hasReceivedEmptyMessage())
+    {
+        // Guess the solution
+        if (have_all_message_pieces())
+        {
+            // Determine solution length
+            size_t solutionLength = 0;
+            for (const auto& receivedPiece : Reader::_allReceivedPieces)
+                solutionLength += receivedPiece.second.message.size();
+
+            // Concat the message pieces
+            string guess{};
+            guess.reserve(solutionLength);
+            for (const auto& receivedPiece : Reader::_allReceivedPieces)
+                guess.append(receivedPiece.second.message);
+
+            return "SOLUTION " + guess;
+        }
+    }
+    // IMPORTANT: Assuming packets cannot get lost.
+    // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
+    else if(turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
         std::array<bool, NSLOTS> slotTaken {};

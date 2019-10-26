@@ -1,35 +1,32 @@
-
 #include "turnData.h"
-#include "strategy.h"
 #include "TestingStrategy.h"
 
-int main() {
+using namespace std;
+
+int main()
+{
     char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
     // int seed = 0;
     
-    std::cout << "START " << teamToken 
+    cout << "START " << teamToken 
         // << " " << seed 
-        << std::endl;
+        << endl;
 
     Reader turnData = {};
-
-    TestingStrategy my_stat;
+    TestingStrategy strategy;
     
-    while(true) {
-        readData(turnData);
-        
-        if (turnData.hasEnd)
-            break;
-            
+    while(readData(turnData)) 
+    {
         // TODO logika jobb mint a semmitteves
-        std::string command = my_stat.step(turnData);
+        auto command = strategy.step(turnData);
         
         // Ha szeretnetek debug uzenetet kuldeni, akkor megtehetitek.
         // Vigyazzatok, mert maximalisan csak 1024 * 1024 bajtot kaptok vissza
-        std::cerr << "Send " << command << std::endl;
+        cerr << "Send " << command << endl;
        
         // standard out-ra meg mehet ki a megoldas! Mas ne irodjon ide ki ;)
-        std::cout << turnData.data[0] << " " << turnData.data[1] << " " << turnData.data[2] << " " << command << std::endl;
+        cout << turnData.commandPrefix.gameId << " " << turnData.commandPrefix.tickId << " " << turnData.commandPrefix.routerId << " " << command << endl;
     }
-    std::cerr << "END (latest message): " << turnData.previous << std::endl;
+
+    cerr << "END (latest message): " << turnData.previous << endl;
 }

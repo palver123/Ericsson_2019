@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "constants.h"
+#include <map>
 
 enum class Direction : char {
     LEFT = 'l',
@@ -19,6 +20,7 @@ struct Data {
     unsigned int toRouter;
     Direction dir;
 
+    // Is the content of the data package a request or an answer to a request
     bool is_request() const;
 };
 
@@ -27,17 +29,38 @@ struct MessagePiece {
     std::string message;
 };
 
-struct Reader {
-    static std::vector<MessagePiece> _allReceivedPieces;
+// Used to prefix our commands like this: <game-id> <tick-id> <router-id> COMMAND...
+struct CommandDescription
+{
+    unsigned gameId;
+    unsigned tickId;
+    unsigned routerId;
+};
 
-    std::array<unsigned int, 3> data;
+struct Reader {
+    // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
+    static int _lowestEmptyAnswer;
+
+    // ALL the received answers to our requests so far
+    static std::map<int, MessagePiece> _allReceivedPieces;
+
+
+
+    CommandDescription commandPrefix;
+
+    // An optional field that contains a message from the server to our previous command. For example: 'PREVIOUS Wrong solution string.'
     std::string previous;
+
+    // Bitfield for routers: 0 means the slot is closed, 1 means open.
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
     std::vector<Data> dataArray;
+
+    // Answers received IN THE CURRENT TURN.
     std::vector<MessagePiece> receivedPieces;
-    bool hasEnd;
-    bool gotEmptyMessagePiece;
+
+    static bool hasReceivedEmptyMessage();
+    static void OnMessageReceived(const MessagePiece&);
 };
 
 
-void readData(Reader& to);
+bool readData(Reader& to);
