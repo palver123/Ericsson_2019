@@ -2,7 +2,6 @@ from router_game import GameLog
 import pygame
 from pygame.locals import *
 import sys
-import my_globals
 
 widthForMessagePieceColumn = 135 * 3
 
@@ -123,10 +122,10 @@ class DisplayWindow:
         self.draw_message("Server response: " + frame.prev_error, 2)
         x_msgPack_column = self.window_width - widthForMessagePieceColumn
         yMinus = 0
-        for i in range (0, len(my_globals.receivedMessagesPieces)):
+        for i in range (0, len(frame.receivedMessagePieces)):
             y = i * self.space_height - yMinus
             topLeft = (x_msgPack_column, y)
-            text = self.font.render(my_globals.receivedMessagesPieces[i], True, (50, 50, 50))
+            text = self.font.render(frame.receivedMessagePieces[i], True, (50, 50, 50))
             self.screen.blit(text, topLeft)
             if (y >= self.window_height - self.space_height):
                 yMinus = yMinus + self.window_height

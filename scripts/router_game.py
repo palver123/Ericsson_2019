@@ -1,6 +1,6 @@
 import re
-import my_globals
 
+allReceivedMessagesPieces = []
 
 class Router:
     def __init__(self, id, is_open):
@@ -25,6 +25,7 @@ class GameFrame:
         self.prev_error = ""
         self.routers = []
         self.dataPackages = []
+        self.receivedMessagePieces = []
 
 
 class GameLog:
@@ -73,6 +74,9 @@ def is_prev_error(txt, pattern=re.compile(r"PREVIOUS (.*)$")):
 
 def read_next(inp):
     next_frame = GameFrame()
+    for i in range (0, len(allReceivedMessagesPieces)):
+        next_frame.receivedMessagePieces.append(allReceivedMessagesPieces[i])
+
     while True:
         line = read_line(inp)
         if line is None:
@@ -89,13 +93,16 @@ def read_next(inp):
             next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), res.group(4), int(res.group(5)), int(res.group(6)), line.endswith('r')))
         elif is_message_piece(line):
             res = is_message_piece(line)
-            my_globals.receivedMessagesPieces.append(res.group(1))
+            msgPiece = res.group(1)
+            allReceivedMessagesPieces.append(msgPiece)
+            next_frame.receivedMessagePieces.append(msgPiece)
         elif is_prev_error(line):
             next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
         elif starts_with_timestamp(line):
             pass
         else:
             print("Cant parse line: {}".format(line))
+    next_frame.receivedMessagePieces.sort() # TODO This does a lexical sort which means: '10' < '1'
 
 
 def load_log(file_path: str) -> GameLog:
@@ -106,5 +113,4 @@ def load_log(file_path: str) -> GameLog:
             if frame is None:
                 break
             game_frames.append(frame)
-    my_globals.receivedMessagesPieces.sort() # TODO This does a lexical sort which means: '10' < '1'
     return GameLog(game_frames)
