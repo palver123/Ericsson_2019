@@ -88,7 +88,8 @@ class DisplayWindow:
         top = lt_coord_of_router[1] + self.router_block_height * package.currStore + inset
         isAnswer = package.toRouter == package.fromRouter;
         bgColor = (127, 255, 255) if isAnswer else (255, 255, 127)
-        dirText = ">>" if package.clockwise else "<<"
+        firstRow = package.currRouter < 7
+        dirText = ">>" if (package.clockwise == firstRow) else "<<"
         renderedText = self.font.render(dirText + package.messageId + dirText, True, (10, 10, 10), bgColor)
         margin = 3
         self.screen.blit(renderedText, (left + margin, top + margin))
