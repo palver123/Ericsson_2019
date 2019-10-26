@@ -79,7 +79,8 @@ class DisplayWindow:
             left = lt_coord[0]
             top = lt_coord[1] + self.router_block_height * i
             color = (127, 255, 127) if router.is_open[i] == "1" else (255, 127, 127)
-            pygame.draw.rect(self.screen, color, (left, top, self.router_width, self.router_block_height))
+            margin = 2
+            pygame.draw.rect(self.screen, color, (left + margin, top + margin, self.router_width - 2*margin, self.router_block_height - 2*margin))
 
     def draw_package(self, package):
         inset = 2
