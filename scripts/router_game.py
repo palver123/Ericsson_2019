@@ -110,7 +110,7 @@ def load_log(file_path: str) -> GameLog:
     with open(file_path) as inp:
         while True:
             frame = read_next(inp)
-            if frame is None:
+            if frame is None or len(frame.routers) < 1:
                 break
             game_frames.append(frame)
     return GameLog(game_frames)
