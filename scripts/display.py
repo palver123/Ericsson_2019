@@ -53,7 +53,7 @@ class DisplayWindow:
                     self.act_index = max(0, self.act_index - 10)
                     return True
                 if event.key == K_t:
-                    self.act_index = min(lenmaxFrame, self.act_index + 10)
+                    self.act_index = min(maxFrame, self.act_index + 10)
                     return True
 
                 if event.key == K_DOWN:
