@@ -7,6 +7,16 @@ class Router:
         self.is_open = is_open
 
 
+class Data:
+    def __init__(self, currRouter, currStore, messageId, fromRouter, toRouter, clockwise):
+        self.currRouter = currRouter
+        self.currStore = currStore
+        self.messageId = messageId
+        self.fromRouter = fromRouter
+        self.toRouter = toRouter
+        self.clockwise = clockwise
+
+
 class GameFrame:
     def __init__(self):
         self.command = None
@@ -14,6 +24,7 @@ class GameFrame:
         self.request_id = None
         self.prev_error = ""
         self.routers = []
+        self.dataPackages = []
 
 
 class GameLog:
@@ -56,6 +67,10 @@ def is_router(txt, pattern=re.compile(r"ROUTER (\d+)\s+(\d+)")):
     return pattern.match(txt)
 
 
+def is_data(txt, pattern=re.compile(r"DATA (\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[lr]")):
+    return pattern.match(txt)
+
+
 def is_prev_error(txt, pattern=re.compile(r"PREVIOUS (.*)$")):
     return pattern.match(txt)
 
@@ -75,6 +90,9 @@ def read_next(inp):
         elif is_router(line):
             res = is_router(line)
             next_frame.routers.append(Router(int(res.group(1)), res.group(2)))
+        elif is_data(line):
+            res = is_data(line)
+            next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), int(res.group(4)), int(res.group(5)), int(res.group(6)), line.endswith('r')))
         elif is_prev_error(line):
             next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
         elif is_writen_ended(line) or is_read_start(line):
