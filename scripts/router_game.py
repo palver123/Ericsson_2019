@@ -22,7 +22,6 @@ class GameFrame:
     def __init__(self):
         self.command = None
         self.message = None
-        self.request_id = None
         self.prev_error = ""
         self.routers = []
         self.dataPackages = []
@@ -44,8 +43,8 @@ def re_timestamp(txt):
     return re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}[:]\d{2}[:]\d{2}.\d+Z\s+"+txt)
 
 
-def is_read_start(txt, pattern=re_timestamp("Started to read")):
-    return pattern.match(txt)
+def starts_with_timestamp(txt):
+    return re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}[:]\d{2}[:]\d{2}.\d+Z.*").match(txt) != None
 
 
 def is_frame_end(txt, pattern=re.compile(r'[.]')):
@@ -53,14 +52,6 @@ def is_frame_end(txt, pattern=re.compile(r'[.]')):
 
 
 def is_my_command(txt, pattern=re_timestamp("Readed: (\d+)\s+(\d+)\s+(\d+)\s+(.*)$")):
-    return pattern.match(txt)
-
-
-def is_request_id(txt, pattern=re_timestamp(r"Start write: REQUEST(.*)$")):
-    return pattern.match(txt)
-
-
-def is_writen_ended(txt, pattern=re_timestamp(r"Write ended")):
     return pattern.match(txt)
 
 
@@ -90,8 +81,6 @@ def read_next(inp):
             return next_frame
         elif is_my_command(line):
             next_frame.command = is_my_command(line).group(4)
-        elif is_request_id(line):
-            next_frame.request_id = is_request_id(line).group(1)
         elif is_router(line):
             res = is_router(line)
             next_frame.routers.append(Router(int(res.group(1)), res.group(2)))
@@ -103,7 +92,7 @@ def read_next(inp):
             my_globals.receivedMessagesPieces.append(res.group(1))
         elif is_prev_error(line):
             next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
-        elif is_writen_ended(line) or is_read_start(line):
+        elif starts_with_timestamp(line):
             pass
         else:
             print("Cant parse line: {}".format(line))
@@ -117,5 +106,5 @@ def load_log(file_path: str) -> GameLog:
             if frame is None:
                 break
             game_frames.append(frame)
-    my_globals.receivedMessagesPieces.sort()
+    my_globals.receivedMessagesPieces.sort() # TODO This does a lexical sort which means: '10' < '1'
     return GameLog(game_frames)
