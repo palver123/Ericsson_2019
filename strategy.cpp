@@ -21,3 +21,12 @@ ll IStrategy::getRandomLL(ll from, ll to_exclusive)
     unsigned long long d = static_cast<unsigned long long>(to_exclusive - from);
     return static_cast<ll>(my_random()  % d) + from;
 }
+
+int IStrategy::getNumberOfPlayerPackets(int routerIdx)
+{
+    int res = 0;
+    for (const auto& packet : actualData->dataArray) {
+        if (packet.fromRouter == id) ++res;
+    }........
+    return res;
+}

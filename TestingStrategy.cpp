@@ -16,6 +16,8 @@ bool have_all_message_pieces()
 
 std::string TestingStrategy::step(Reader &turnData)
 {
+    
+    actualData = &turnData;
     if (Reader::hasReceivedEmptyMessage())
     {
         // Guess the solution
@@ -37,7 +39,7 @@ std::string TestingStrategy::step(Reader &turnData)
     }
     // IMPORTANT: Assuming packets cannot get lost.
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
-    else if(turnData.dataArray.size() < MAX_PACKETS_IN_SYSTEM)
+    else if(getNumberOfPlayerPackets(actualData->commandPrefix.routerId) < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
         std::array<bool, NSLOTS> slotTaken {};

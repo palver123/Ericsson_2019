@@ -15,4 +15,8 @@ class IStrategy
     int getRandom(int from, int to_exclusive);
     ll getRandomLL(ll from, ll to_exclusive);
 
+    int getNumberOfPlayerPackets(int routerIdx);
+
+
+    const Reader* actualData;
 };
