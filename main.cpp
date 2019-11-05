@@ -7,10 +7,11 @@ using namespace std;
 int main()
 {
     char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
-    // int seed = 0;
+    int seed = 0;
     
     cout << "START " << teamToken 
-        // << " " << seed 
+        << " " << seed
+        << " " << "0.0.0.11"
         << endl;
 
     Reader turnData = {};
