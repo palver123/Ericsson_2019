@@ -43,19 +43,19 @@ std::string TestingStrategy::step(Reader &turnData)
         std::array<bool, NSLOTS> slotTaken {};
         for (const auto& data : turnData.dataArray)
         {
-            if (data.currRouter == MY_ROUTER)
+            if (data.currRouter == turnData.commandPrefix.routerId)
                 slotTaken[data.currStoreId] = true;
         }
 
         for (auto slot = 0; slot < NSLOTS; slot++)
-            if (!slotTaken[slot] && turnData.routerBits[MY_ROUTER][slot])
+            if (!slotTaken[slot] && turnData.routerBits[turnData.commandPrefix.routerId][slot])
                 return fmt::format("CREATE {} {}", slot, _requestCounter++);
     }
 
     // Try to move
     for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
         for (const auto& data : turnData.dataArray)
-            if (data.currRouter == routerIdx && data.fromRouter == MY_ROUTER)
+            if (data.currRouter == routerIdx && data.fromRouter == turnData.commandPrefix.routerId)
                 return fmt::format("MOVE {} {}", routerIdx, getRandom(0, 1) ? "^" : "v");
 
     // Do nothing
