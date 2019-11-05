@@ -26,7 +26,7 @@ int IStrategy::getNumberOfPlayerPackets(int routerIdx)
 {
     int res = 0;
     for (const auto& packet : actualData->dataArray) {
-        if (packet.fromRouter == id) ++res;
-    }........
+        if (packet.fromRouter == routerIdx) ++res;
+    }
     return res;
 }
