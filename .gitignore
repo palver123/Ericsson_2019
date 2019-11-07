@@ -1,18 +1,39 @@
-*
-!**/
 
-# not ignore c/cpp files
-!**/*.cpp
-!**/*.hpp
-!**/*.cc
-!**/*.hh
-!**/*.c
-!**/*.h
+#Ignore thumbnails created by Windows
+Thumbs.db
+#Ignore files built by Visual Studio
+*.obj
+*.exe
+*.pdb
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+[Bb]in
+[Dd]ebug*/
+*.lib
+*.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+[Tt]est[Rr]esult*
+.vs/
+#Nuget packages folder
+packages/
 
-# not ignore python files
-!**/*.py
-
-# not ignore java files
-!**/*.java
 /CMakeFiles/3.12.18081601-MSVC_2/*
-/CMakeFiles/feature_tests.c
+/CMakeFiles/*
+
+/CMakeCache.txt
+/CMakeLists.txt
+/scripts/__pycache__/*
