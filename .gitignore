@@ -35,5 +35,4 @@ packages/
 /CMakeFiles/*
 
 /CMakeCache.txt
-/CMakeLists.txt
 /scripts/__pycache__/*
