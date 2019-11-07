@@ -15,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wololo", "wololo.vcxproj", 
 		{C72CD110-04FF-3CA6-87C6-41845D6BB4D7} = {C72CD110-04FF-3CA6-87C6-41845D6BB4D7}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleRunner", "console.runner\src\ConsoleRunner\ConsoleRunner.csproj", "{7CC8807D-AF58-4C8B-9278-64966F4DA0CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleRunner", "console.runner\ConsoleRunner.csproj", "{7CC8807D-AF58-4C8B-9278-64966F4DA0CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
