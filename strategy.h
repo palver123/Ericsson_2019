@@ -7,7 +7,7 @@
 class IStrategy
 {
  public:
-  virtual std::string step(const GameState&, const Context&);
+  virtual std::string step(const NetworkState&, const GameContext&);
   virtual ~IStrategy() = default;
 
 
@@ -18,6 +18,6 @@ class IStrategy
     int getNumberOfPlayerPackets(unsigned routerIdx) const;
 
 
-    const GameState* actualData = nullptr;
-    virtual void stepPre(const GameState& turnData);
+    const NetworkState* actualData = nullptr;
+    virtual void stepPre(const NetworkState& turnData);
 };

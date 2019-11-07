@@ -3,13 +3,9 @@
 #include <array>
 #include <string>
 #include <vector>
-#include "constants.h"
 #include <map>
-
-enum class Direction : char {
-    LEFT = 'l',
-    RIGHT = 'r'
-};
+#include "constants.h"
+#include "Direction.h"
 
 struct Data {
     unsigned int currRouter;
@@ -37,16 +33,18 @@ struct CommandDescription
     unsigned routerId;
 };
 
-struct GameState
+// The state of the network consisting of 10 routers organized in a Daisy Chain.
+struct NetworkState
 {
     // Bitfield for routers: 0 means the slot is closed, 1 means open.
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
-    std::vector<Data> dataArray;
+    std::vector<Data> dataPackets;
 
     void clear();
 };
 
-struct Context
+// Context of the whole game from the first tick to the last (kind of a 'global state')
+struct GameContext
 {
     CommandDescription commandPrefix;
 
@@ -59,17 +57,4 @@ struct Context
     bool have_all_message_pieces() const;
     bool hasReceivedEmptyMessage() const;
     void OnMessageReceived(const MessagePiece&);
-};
-
-struct Reader {
-    // An optional field that contains a message from the server to our previous command. For example: 'PREVIOUS Wrong solution string.'
-    std::string previous;
-
-    // Answers received IN THE CURRENT TURN.
-    std::vector<MessagePiece> receivedPieces;
-
-    bool readData(GameState&, Context&);
-
-private:
-    void reset();
 };

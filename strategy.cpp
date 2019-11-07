@@ -4,7 +4,7 @@
 
 static std::mt19937_64 my_random{std::random_device{}()};
 
-std::string IStrategy::step(const GameState& turnData, const Context& ctx) {
+std::string IStrategy::step(const NetworkState& turnData, const GameContext& ctx) {
     static auto tc = 0;
     std::cerr << "Turn " << tc++ << std::endl;
     return "PASS";
@@ -25,14 +25,14 @@ ll IStrategy::getRandomLL(const ll from, const ll to_exclusive)
 int IStrategy::getNumberOfPlayerPackets(const unsigned routerIdx) const
 {
     auto res = 0;
-    for (const auto& packet : actualData->dataArray) {
+    for (const auto& packet : actualData->dataPackets) {
         if (packet.fromRouter == routerIdx) 
             ++res;
     }
     return res;
 }
 
-void IStrategy::stepPre(const GameState& turnData)
+void IStrategy::stepPre(const NetworkState& turnData)
 {
     actualData = &turnData;
 }

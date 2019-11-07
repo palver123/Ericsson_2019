@@ -1,7 +1,7 @@
 #include "TestingStrategy.h"
 
 
-std::string TestingStrategy::step(const GameState &turnData, const Context& ctx)
+std::string TestingStrategy::step(const NetworkState &turnData, const GameContext& ctx)
 {
     stepPre(turnData);
     
@@ -30,7 +30,7 @@ std::string TestingStrategy::step(const GameState &turnData, const Context& ctx)
     {
         // Try to ask for a new packet
         std::array<bool, NSLOTS> slotTaken {};
-        for (const auto& data : turnData.dataArray)
+        for (const auto& data : turnData.dataPackets)
         {
             if (data.currRouter == ctx.commandPrefix.routerId)
                 slotTaken[data.currStoreId] = true;
@@ -43,7 +43,7 @@ std::string TestingStrategy::step(const GameState &turnData, const Context& ctx)
 
     // Try to move
     for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
-        for (const auto& data : turnData.dataArray)
+        for (const auto& data : turnData.dataPackets)
             if (data.currRouter == routerIdx && data.fromRouter == ctx.commandPrefix.routerId)
                 return fmt::format("MOVE {} {}", routerIdx, getRandom(0, 1) ? "^" : "v");
 

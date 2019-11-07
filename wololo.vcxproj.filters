@@ -13,6 +13,12 @@
     <ClCompile Include="C:\_Git\ericsson_2019\TestingStrategy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\_Git\ericsson_2019\Reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\_Git\ericsson_2019\simulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\_Git\ericsson_2019\strategy.h">
@@ -27,7 +33,16 @@
     <ClInclude Include="C:\_Git\ericsson_2019\basics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="constants.h">
+    <ClInclude Include="C:\_Git\ericsson_2019\Reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\_Git\ericsson_2019\simulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\_Git\ericsson_2019\commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\_Git\ericsson_2019\Direction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

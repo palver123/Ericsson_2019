@@ -1,13 +1,12 @@
 #include "turnData.h"
 #include "TestingStrategy.h"
+#include "Reader.h"
 
 using namespace std;
 
-// run 1
-int main(int argc, char *argv[])
+int get_map_seed(const int argc, char *argv[])
 {
-    char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
-    int seed = 0;
+    auto seed = 0;
     if (argc > 1)
     {
         const string arg{ argv[1] };
@@ -20,16 +19,23 @@ int main(int argc, char *argv[])
             // ignored
         }
     }
+    return seed;
+}
+
+int main(int argc, char *argv[])
+{
+    const auto seed = get_map_seed(argc, argv);
     cerr << "Using seed: " << seed << endl;
 
-    cout << "START " << teamToken 
+    char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
+    cout << "START " << teamToken
         << " " << seed
         << " " << "0.0.0.11"
         << endl;
 
     Reader reader = {};
-    GameState turnData;
-    Context context;
+    NetworkState turnData;
+    GameContext context;
     TestingStrategy strategy;
     
     while(reader.readData(turnData, context))
