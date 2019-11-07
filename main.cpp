@@ -4,11 +4,24 @@
 using namespace std;
 
 // run 1
-int main()
+int main(int argc, char *argv[])
 {
     char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
     int seed = 0;
-    
+    if (argc > 1)
+    {
+        const string arg{ argv[1] };
+        try
+        {
+            seed = std::stoi(arg);
+        }
+        catch (...)
+        {
+            // ignored
+        }
+    }
+    cerr << "Using seed: " << seed << endl;
+
     cout << "START " << teamToken 
         << " " << seed
         << " " << "0.0.0.11"
