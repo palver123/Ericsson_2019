@@ -30,3 +30,8 @@ int IStrategy::getNumberOfPlayerPackets(int routerIdx)
     }
     return res;
 }
+
+std::string IStrategy::stepPre(Reader& turnData)
+{
+    actualData = &turnData;
+}

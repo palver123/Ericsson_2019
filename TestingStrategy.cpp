@@ -16,8 +16,8 @@ bool have_all_message_pieces()
 
 std::string TestingStrategy::step(Reader &turnData)
 {
+    stepPre(turnData);
     
-    actualData = &turnData;
     if (Reader::hasReceivedEmptyMessage())
     {
         // Guess the solution
