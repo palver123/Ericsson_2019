@@ -7,17 +7,17 @@
 class IStrategy
 {
  public:
-  virtual std::string step(Reader& turnData);
+  virtual std::string step(const GameState&, const Context&);
   virtual ~IStrategy() = default;
 
 
  protected:
-    int getRandom(int from, int to_exclusive);
-    ll getRandomLL(ll from, ll to_exclusive);
+  static int getRandom(int from, int to_exclusive);
+  static ll getRandomLL(ll from, ll to_exclusive);
 
-    int getNumberOfPlayerPackets(int routerIdx);
+    int getNumberOfPlayerPackets(unsigned routerIdx) const;
 
 
-    const Reader* actualData;
-    virtual void stepPre(Reader& turnData);
+    const GameState* actualData = nullptr;
+    virtual void stepPre(const GameState& turnData);
 };

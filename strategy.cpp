@@ -4,34 +4,35 @@
 
 static std::mt19937_64 my_random{std::random_device{}()};
 
-std::string IStrategy::step(Reader& turnData) {
-    static int tc = 0;
+std::string IStrategy::step(const GameState& turnData, const Context& ctx) {
+    static auto tc = 0;
     std::cerr << "Turn " << tc++ << std::endl;
     return "PASS";
 }
 
-int IStrategy::getRandom(int from, int to_exclusive)
+int IStrategy::getRandom(const int from, const int to_exclusive)
 {
-    unsigned long long d = static_cast<unsigned long long>(to_exclusive - from);
+    const auto d = static_cast<unsigned long long>(to_exclusive - from);
     return static_cast<int>(my_random()  % d) + from;
 }
 
-ll IStrategy::getRandomLL(ll from, ll to_exclusive)
+ll IStrategy::getRandomLL(const ll from, const ll to_exclusive)
 {
-    unsigned long long d = static_cast<unsigned long long>(to_exclusive - from);
+    const auto d = static_cast<unsigned long long>(to_exclusive - from);
     return static_cast<ll>(my_random()  % d) + from;
 }
 
-int IStrategy::getNumberOfPlayerPackets(int routerIdx)
+int IStrategy::getNumberOfPlayerPackets(const unsigned routerIdx) const
 {
-    int res = 0;
+    auto res = 0;
     for (const auto& packet : actualData->dataArray) {
-        if (packet.fromRouter == routerIdx) ++res;
+        if (packet.fromRouter == routerIdx) 
+            ++res;
     }
     return res;
 }
 
-void IStrategy::stepPre(Reader& turnData)
+void IStrategy::stepPre(const GameState& turnData)
 {
     actualData = &turnData;
 }

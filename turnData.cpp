@@ -4,32 +4,55 @@
 
 using namespace std;
 
-map<int, MessagePiece> Reader::_allReceivedPieces;
-int Reader::_lowestEmptyAnswer = -1;
-
 bool Data::is_request() const
 {
     return toRouter != fromRouter;
 }
 
-bool Reader::hasReceivedEmptyMessage()
+bool Context::have_all_message_pieces() const
+{
+    auto highestReceivedIdx = -1;
+    for (const auto& receivedPiece : _allReceivedPieces)
+    {
+        if (receivedPiece.first - highestReceivedIdx > 1)
+            return false; // A packet is missing
+        highestReceivedIdx = receivedPiece.first;
+    }
+
+    return highestReceivedIdx = _lowestEmptyAnswer - 1;
+}
+
+
+bool Context::hasReceivedEmptyMessage() const
 {
     return _lowestEmptyAnswer >= 0;
 }
 
-void Reader::OnMessageReceived(const MessagePiece& msg)
+void Context::OnMessageReceived(const MessagePiece& msg)
 {
     _allReceivedPieces.emplace(msg.index, msg);
     if (msg.message.empty() && (!hasReceivedEmptyMessage() || msg.index < _lowestEmptyAnswer))
         _lowestEmptyAnswer = msg.index;
 }
 
-bool readData(Reader &to) 
+void GameState::clear()
 {
-    string line;
-    to.dataArray.clear();
-    to.receivedPieces.clear();
+    dataArray.clear();
+}
+
+void Reader::reset()
+{
+    receivedPieces.clear();
+}
+
+
+bool Reader::readData(GameState& state, Context& ctx)
+{
+    state.clear();
+    reset();
+
     auto gameOver = false;
+    string line;
 
     while (getline(cin, line)) {
         if (!line.rfind('.', 0))
@@ -40,26 +63,26 @@ bool readData(Reader &to)
             !line.rfind("TICK", 0))
         {
             gameOver = true;
-            to.previous = move(line);
+            previous = move(line);
         }
         else if (!line.rfind("REQUEST", 0)) {
             stringstream(move(line).substr(8))
-                >> to.commandPrefix.gameId
-                >> to.commandPrefix.tickId
-                >> to.commandPrefix.routerId;
+                >> ctx.commandPrefix.gameId
+                >> ctx.commandPrefix.tickId
+                >> ctx.commandPrefix.routerId;
         }
         else if (!line.rfind("PREVIOUS", 0)) {
-            to.previous = move(line).substr(9);
+            previous = move(line).substr(9);
         }
         else if (!line.rfind("ROUTER", 0)) {
             unsigned int routerIndex;
             istringstream(line.substr(7)) >> routerIndex >> line;
             auto it = line.begin();
-            for (bool& routers : to.routerBits[routerIndex])
+            for (auto& routers : state.routerBits[routerIndex])
                 routers = *it++ == '1';
         }
         else if (!line.rfind("DATA", 0)) {
-            auto& curr = to.dataArray.emplace_back();
+            auto& curr = state.dataArray.emplace_back();
             istringstream(move(line).substr(5))
                 >> curr.currRouter
                 >> curr.currStoreId
@@ -70,9 +93,9 @@ bool readData(Reader &to)
                 >> reinterpret_cast<char&>(curr.dir);
         }
         else if (!line.rfind("MESSAGE")) {
-            auto& msg = to.receivedPieces.emplace_back();
+            auto& msg = receivedPieces.emplace_back();
             istringstream(move(line).substr(8)) >> msg.index >> msg.message;
-            Reader::OnMessageReceived(msg);
+            ctx.OnMessageReceived(msg);
         }
         else {
             cerr << "READER ERROR HAPPENED: unrecognized command line: " << line << endl;

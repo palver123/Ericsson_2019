@@ -27,21 +27,23 @@ int main(int argc, char *argv[])
         << " " << "0.0.0.11"
         << endl;
 
-    Reader turnData = {};
+    Reader reader = {};
+    GameState turnData;
+    Context context;
     TestingStrategy strategy;
     
-    while(readData(turnData)) 
+    while(reader.readData(turnData, context))
     {
         // TODO logika jobb mint a semmitteves
-        auto command = strategy.step(turnData);
+        auto command = strategy.step(turnData, context);
         
         // Ha szeretnetek debug uzenetet kuldeni, akkor megtehetitek.
         // Vigyazzatok, mert maximalisan csak 1024 * 1024 bajtot kaptok vissza
         cerr << "Send " << command << endl;
        
         // standard out-ra meg mehet ki a megoldas! Mas ne irodjon ide ki ;)
-        cout << turnData.commandPrefix.gameId << " " << turnData.commandPrefix.tickId << " " << turnData.commandPrefix.routerId << " " << command << endl;
+        cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << context.commandPrefix.routerId << " " << command << endl;
     }
 
-    cerr << "END (latest message): " << turnData.previous << endl;
+    cerr << "END (latest message): " << reader.previous << endl;
 }

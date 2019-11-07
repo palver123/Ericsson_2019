@@ -10,5 +10,5 @@ public:
     TestingStrategy() = default;
 
     // IStrategy interface
-    std::string step(Reader &turnData) override;
+    std::string step(const GameState&, const Context&) override;
 };

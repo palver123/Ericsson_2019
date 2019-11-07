@@ -37,30 +37,39 @@ struct CommandDescription
     unsigned routerId;
 };
 
-struct Reader {
-    // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
-    static int _lowestEmptyAnswer;
-
-    // ALL the received answers to our requests so far
-    static std::map<int, MessagePiece> _allReceivedPieces;
-
-
-
-    CommandDescription commandPrefix;
-
-    // An optional field that contains a message from the server to our previous command. For example: 'PREVIOUS Wrong solution string.'
-    std::string previous;
-
+struct GameState
+{
     // Bitfield for routers: 0 means the slot is closed, 1 means open.
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
     std::vector<Data> dataArray;
 
+    void clear();
+};
+
+struct Context
+{
+    CommandDescription commandPrefix;
+
+    // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
+    int _lowestEmptyAnswer = -1;
+
+    // ALL the received answers to our requests so far
+    std::map<int, MessagePiece> _allReceivedPieces;
+
+    bool have_all_message_pieces() const;
+    bool hasReceivedEmptyMessage() const;
+    void OnMessageReceived(const MessagePiece&);
+};
+
+struct Reader {
+    // An optional field that contains a message from the server to our previous command. For example: 'PREVIOUS Wrong solution string.'
+    std::string previous;
+
     // Answers received IN THE CURRENT TURN.
     std::vector<MessagePiece> receivedPieces;
 
-    static bool hasReceivedEmptyMessage();
-    static void OnMessageReceived(const MessagePiece&);
+    bool readData(GameState&, Context&);
+
+private:
+    void reset();
 };
-
-
-bool readData(Reader& to);
