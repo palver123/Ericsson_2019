@@ -19,5 +19,5 @@ class IStrategy
 
 
     const Reader* actualData;
-    virtual std::string stepPre(Reader& turnData);
+    virtual void stepPre(Reader& turnData);
 };
