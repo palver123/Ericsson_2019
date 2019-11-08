@@ -42,7 +42,7 @@
     <ClInclude Include="C:\_Git\ericsson_2019\commands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Git\ericsson_2019\Direction.h">
+    <ClInclude Include="C:\_Git\ericsson_2019\directions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

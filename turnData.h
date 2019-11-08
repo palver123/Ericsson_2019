@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include "constants.h"
-#include "Direction.h"
+#include "directions.h"
 
 struct Data {
     unsigned int currRouter;
@@ -14,7 +14,7 @@ struct Data {
     unsigned int messageId;
     unsigned int fromRouter;
     unsigned int toRouter;
-    Direction dir;
+    HorizontalDirection dir;
 
     // Is the content of the data package a request or an answer to a request
     bool is_request() const;

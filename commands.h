@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "Direction.h"
+#include "directions.h"
 
 struct Command{};
 
@@ -14,7 +14,7 @@ struct CreateCommand
 struct MoveCommand
 {
     unsigned routerId;
-    Direction dir;
+    VerticalDirection dir;
 };
 
 struct GuessCommand
