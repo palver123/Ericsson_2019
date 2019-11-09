@@ -17,6 +17,7 @@ bool Reader::readData(NetworkState& state, GameContext& ctx)
 
         if (!line.rfind("WRONG", 0) ||
             !line.rfind("SCORE", 0) ||
+            !line.rfind("SLOW", 0) ||
             !line.rfind("TICK", 0))
         {
             gameOver = true;
