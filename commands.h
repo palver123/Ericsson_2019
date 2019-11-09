@@ -7,6 +7,7 @@ struct Command{};
 
 struct CreateCommand
 {
+    int routerId;
     int storeId;
     int packageId;
 };
