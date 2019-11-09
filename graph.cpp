@@ -71,7 +71,7 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
                 createCmds.pop_back();
             }
 
-            // Simulate the case when pass and the BOT moves a router
+            // Simulate the case when I pass and the BOT moves a router
             moveCmds.push_back(MoveCommand{});
             for (auto rBot = 0; rBot < NROUTERS; ++rBot)
             {
@@ -85,6 +85,7 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
                     states.push_back(simulate(initialState, createCmds, moveCmds));
                 }
             }
+            moveCmds.pop_back();
 
             if (nPacketsMine < MAX_PACKETS_IN_SYSTEM)
             {
@@ -128,6 +129,7 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
                             states.push_back(simulate(initialState, createCmds, moveCmds));
                         }
                     }
+                    moveCmds.pop_back();
                 }
                 createCmds.pop_back();
             }
@@ -135,4 +137,8 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
     }
     
     return states;
+}
+
+void run_graph_tests()
+{
 }

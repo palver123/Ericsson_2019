@@ -2,6 +2,7 @@
 #include "TestingStrategy.h"
 #include "Reader.h"
 #include "simulation.h"
+#include "graph.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int get_map_seed(const int argc, char *argv[])
 
 void run_tests() {
     run_sim_tests();
+    run_graph_tests();
 }
 
 int main(int argc, char *argv[])
