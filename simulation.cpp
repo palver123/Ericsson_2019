@@ -149,9 +149,9 @@ namespace {
             if (d.toRouter == d.currRouter)
                 continue; // Frozen
 
-            const auto& occupied = occuMap[d.currStoreId];
+            const auto& occupied = occuMap[d.currRouter];
             int dir = Dir::dirToint(d.dir);
-            if (d.currStoreId > 0 && occupied[d.currStoreId - 1]) {// Can move inside router
+            if (d.currStoreId > 0 && !occupied[d.currStoreId - 1]) {// Can move inside router
                 steps.push_back({ static_cast<char>(i),static_cast<char>(-1),static_cast<char>(0) });
                 continue;
             }
@@ -322,7 +322,7 @@ bool test_5() {
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
     const auto& d1 = datas[0];
-    if (d1.currRouter != 1 || d1.currStoreId != 5) return false;
+    if (d1.currRouter != 3 || d1.currStoreId != 3) return false;
     return true;
 }
 
@@ -334,7 +334,33 @@ bool test_6() {
     vector<MoveCommand> mvcs;
     mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
     mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+
     mvcs.push_back(MoveCommand{ 12, VerticalDirection::POSITIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 13 || d1.currStoreId != 4) return false;
+    return true;
+}
+
+bool test_7() {
+    NetworkState st = inititalState1();
+    auto& d = st.dataPackets.front();
+    d.toRouter = d.fromRouter;
+    d.dir = HorizontalDirection::LEFT;
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 13, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -343,7 +369,32 @@ bool test_6() {
     return true;
 }
 
-bool test_7() {
+
+bool test_8() {
+    NetworkState st = inititalState1();
+    auto& d = st.dataPackets.front();
+    d.toRouter = d.fromRouter;
+    d.dir = HorizontalDirection::LEFT;
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 13, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 12 || d1.currStoreId != 5) return false;
+    return true;
+}
+
+
+bool test_9() {
     NetworkState st = inititalState1();
     auto& d = st.dataPackets.front();
     d.toRouter = d.fromRouter;
@@ -353,7 +404,12 @@ bool test_7() {
     vector<CreateCommand> crcs;
     mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
     mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
-    mvcs.push_back(MoveCommand{ 12, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 13, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
     crcs.push_back(CreateCommand{ 12, 4, 12 });
 
     st = simulate(st, crcs, mvcs);
@@ -375,4 +431,5 @@ void run_sim_tests()
     std::cout << "Test5 " << test_5() << std::endl;
     std::cout << "Test6 " << test_6() << std::endl;
     std::cout << "Test7 " << test_7() << std::endl;
+    std::cout << "Test8 " << test_8() << std::endl;
 }
