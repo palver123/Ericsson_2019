@@ -8,12 +8,12 @@
 #include "directions.h"
 
 struct Data {
-    unsigned int currRouter;
-    unsigned int currStoreId;
-    unsigned int dataIndex;
-    unsigned int messageId;
-    unsigned int fromRouter;
-    unsigned int toRouter;
+    int currRouter;
+    int currStoreId;
+    int dataIndex;
+    int messageId;
+    int fromRouter;
+    int toRouter;
     HorizontalDirection dir;
 
     // Is the content of the data package a request or an answer to a request
@@ -33,12 +33,22 @@ struct CommandDescription
     unsigned routerId;
 };
 
+// Additional infos for simulation
+struct SimuInfo
+{
+    int additionalArrivedReq = 0;
+    int additionalArrivedResp = 0;
+    std::array<std::array<bool, NSLOTS>, NROUTERS> routerBitsOccupied; // TODO fill
+};
+
 // The state of the network consisting of 10 routers organized in a Daisy Chain.
 struct NetworkState
 {
     // Bitfield for routers: 0 means the slot is closed, 1 means open.
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
     std::vector<Data> dataPackets;
+    SimuInfo simuInfo;
+    std::array<HorizontalDirection, NROUTERS> nextDir; // TODO maintain
 
     int getNumberOfPlayerPackets(unsigned routerOfPlayer) const;
     int getNumberOfPlayerPackets(unsigned routerOfPlayer, int& maxMessageId) const;
@@ -64,3 +74,10 @@ struct GameContext
     bool hasReceivedEmptyMessage() const;
     void OnMessageReceived(const MessagePiece&);
 };
+
+namespace Router {
+    inline int GetPairOfRouter(int router_idx) {
+        return (router_idx + NROUTERS / 2) % NROUTERS;
+    }
+
+}
