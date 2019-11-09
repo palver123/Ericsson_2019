@@ -31,11 +31,11 @@ namespace {
                 nd.dir = Dir::opposite(data.dir);
                 nd.toRouter = data.fromRouter;
                 __additionalPackakes.push_back(nd);
-                if (data.fromRouter == state.ourId)
+                if (data.fromRouter == GameContext::ourId)
                     ++state.simuInfo.additionalArrivedReq;
             }
             else {
-                if (data.fromRouter == state.ourId)
+                if (data.fromRouter == GameContext::ourId)
                     ++state.simuInfo.additionalArrivedResp;
                 state.simuInfo.routerBitsOccupied[data.currRouter][data.currStoreId] = false;
             }
@@ -229,7 +229,7 @@ namespace {
             {"xx.x...xx."}
         };
         for (int i = 0; i < NROUTERS; ++i) state.nextDir[i] = HorizontalDirection::LEFT;
-        state.ourId = 12;
+        GameContext::ourId = 12;
         for(int i = 0; i< NROUTERS; ++i)
             for(int j = 0; j < NSLOTS; ++j)
                 state.routerBits[i][j] = rmp[i][j] == '.';

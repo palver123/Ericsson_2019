@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         cerr << "Send " << command << endl;
        
         // standard out-ra meg mehet ki a megoldas! Mas ne irodjon ide ki ;)
-        cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << context.my_router() << " " << command << endl;
+        cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << GameContext::ourId << " " << command << endl;
     }
 
     cerr << "END (latest message): " << reader.previous << endl;

@@ -7,10 +7,8 @@ bool Data::is_request() const
     return toRouter != fromRouter;
 }
 
-unsigned GameContext::my_router() const
-{
-    return commandPrefix.routerId;
-}
+unsigned GameContext::botRouterId = NROUTERS;
+unsigned GameContext::ourId = NROUTERS;
 
 bool GameContext::have_all_message_pieces() const
 {
