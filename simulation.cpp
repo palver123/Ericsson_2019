@@ -1,35 +1,202 @@
 #include "simulation.h"
-
+#include <algorithm>
+#include <iostream>
+#include <cassert>
 using namespace std;
 
-void remove_arrived_packets(NetworkState& state)
-{    
-}
+namespace {
 
-void add_new_packets(NetworkState& state, const vector<CreateCommand>& commands)
-{    
-}
+    void create_occupation_map(NetworkState& state)
+    {
+        auto& occuMap = state.simuInfo.routerBitsOccupied;
+        for(int i = 0; i<NROUTERS; ++i) {
+            for (int j = 0; j < NSLOTS; ++j)
+                occuMap[i][j] = !state.routerBits[i][j];
+        }
+        for(const auto& d: state.dataPackets)
+            occuMap[d.currRouter][d.currStoreId] = true;        
+    }
 
-void apply_move_commands(NetworkState& state, const vector<MoveCommand>& commands)
-{    
-}
+    void handle_arrived_packets(NetworkState& state)
+    {
+        static vector<Data> __additionalPackakes;
+        vector<Data>& additionalPackakes = __additionalPackakes;
+        additionalPackakes.clear();
+        std::remove_if(state.dataPackets.begin(), state.dataPackets.end(), [&](const Data& data) {
+            if (data.currRouter != data.toRouter) return false;
+            if (data.toRouter != data.fromRouter) {
+                Data nd = data;
+                nd.dir = Dir::opposite(data.dir);
+                nd.toRouter = data.fromRouter;
+                __additionalPackakes.push_back(nd);
+                if (data.fromRouter == state.ourId)
+                    ++state.simuInfo.additionalArrivedReq;
+            }
+            else {
+                if (data.fromRouter == state.ourId)
+                    ++state.simuInfo.additionalArrivedResp;
+                state.simuInfo.routerBitsOccupied[data.currRouter][data.currStoreId] = false;
+            }
+            return true;
+            });
+        state.dataPackets.insert(state.dataPackets.end(), additionalPackakes.begin(), additionalPackakes.end());
+    }
 
-bool step_packets(NetworkState& state, vector<bool>& isPacketFrozen)
-{
-    return false;
-}
+    void add_new_packets(NetworkState& state, const vector<CreateCommand>& commands)
+    {
+        for (const auto& c : commands) {
+            if (c.router_id == -1) {
+                std::cerr << "Invalid router id in CreateCommand during simulation";
+                continue;
+            }
+            if (!state.simuInfo.routerBitsOccupied[c.router_id][c.storeId])
+            {
+                state.simuInfo.routerBitsOccupied[c.router_id][c.storeId] = true;
+                Data data;
+                data.currRouter = c.router_id;
+                data.fromRouter = c.router_id;
+                data.toRouter = Router::GetPairOfRouter(c.router_id);
+                data.dataIndex = c.packageId;
+                // data.messageId No one cares
+                data.currStoreId = c.storeId;
+                data.dir = state.nextDir[c.router_id];
+                state.nextDir[c.router_id] = Dir::opposite(state.nextDir[c.router_id]);
+                state.dataPackets.push_back(data);
+            }
+        }
+    }
 
+    void move_router_pos(NetworkState& state, int idx, int offset) {
+        std::array<bool, NSLOTS> newBits;
+        for(int i = 0; i < NSLOTS; ++i) {
+            newBits[(i + offset) % NSLOTS] = state.routerBits[idx][i];
+        }
+        state.routerBits[idx] = newBits;
+        for (int i = 0; i < NSLOTS; ++i) {
+            newBits[(i + offset) % NSLOTS] = state.simuInfo.routerBitsOccupied[idx][i];
+        }
+        state.simuInfo.routerBitsOccupied[idx] = newBits;
+        for(auto& d : state.dataPackets)
+        {
+            if (d.currRouter != idx) continue;
+            d.dataIndex = (d.dataIndex + offset) % NSLOTS;
+        }
+    }
+
+    void move_router_neg(NetworkState& state, int idx, int offset_dd) {
+        for (int dummy = 0; dummy < std::abs(offset_dd); ++dummy)
+        {
+            std::array<bool, NSLOTS> newBits;
+            for (int i = 0; i < NSLOTS; ++i) {
+                newBits[i] = state.routerBits[idx][(i +1) % NSLOTS];
+            }
+            state.routerBits[idx] = newBits;
+            for (int i = 0; i < NSLOTS; ++i) {
+                newBits[i] = state.simuInfo.routerBitsOccupied[idx][(i + 1) % NSLOTS];
+            }
+            state.simuInfo.routerBitsOccupied[idx] = newBits;
+
+            for (auto& d : state.dataPackets)
+            {
+                if (d.currRouter != idx) continue;
+                if (d.currStoreId == 0 && !state.simuInfo.routerBitsOccupied[idx][0]) {
+                    state.simuInfo.routerBitsOccupied[idx][0] = true;
+                    state.simuInfo.routerBitsOccupied[idx][NSLOTS - 1] = false;
+                }
+                else {
+                    d.dataIndex = (d.dataIndex + NSLOTS - 1) % NSLOTS;
+                }
+
+            }
+        }
+    }
+
+    void apply_move_commands(NetworkState& state, const vector<MoveCommand>& commands)
+    {
+        std::array<int, NROUTERS> dirs{};
+        for (const auto& c : commands) {
+            dirs[c.routerId] += Dir::dirToint(c.dir);
+        }
+        for (int idx = 0; idx < NROUTERS; ++idx) {
+            int offset = dirs[idx];
+            if (offset == 0) continue;
+            if (offset > 0) {
+                move_router_pos(state, idx, offset);
+            } else {
+                move_router_neg(state, idx, offset);
+            }
+        }
+    }
+
+    struct Step
+    {
+        char msgIdx;
+        char vdir = 0;
+        char hdir = 0;
+    };
+
+    bool step_packets(NetworkState& state)
+    {
+        auto& occuMap = state.simuInfo.routerBitsOccupied;
+        vector<Step> steps;
+        bool movingHappend = false;
+        auto& datas = state.dataPackets;
+        steps.clear();
+        for(int i = 0; i<datas.size(); ++i) {
+            const auto& d = datas[i];
+            if (d.toRouter == d.currRouter)
+                continue; // Frozen
+
+            const auto& occupied = occuMap[d.currStoreId];
+            int dir = Dir::dirToint(d.dir);
+            if (d.currStoreId > 0 && occupied[d.currStoreId - 1]) {// Can move inside router
+                steps.push_back({ static_cast<char>(i),static_cast<char>(-1),static_cast<char>(0) });
+                continue;
+            }
+            bool occupiedTarget = occuMap[(d.currStoreId + NSLOTS + dir) % NSLOTS][d.currStoreId];
+            if (!occupiedTarget) {
+                steps.push_back({ static_cast<char>(i),static_cast<char>(0),static_cast<char>(dir)});
+            }
+        }
+
+        std::sort(steps.begin(), steps.end(), [&](const Step& a, const Step& b)->bool {
+                if (a.vdir && !b.vdir) return true;
+                if (!a.vdir && b.vdir) return false;
+                if (a.vdir) {
+                    return datas[a.msgIdx].currStoreId < datas[b.msgIdx].currStoreId; // Doesnt really matter;
+                } else {
+                    return datas[a.msgIdx].currRouter < datas[b.msgIdx].currRouter; // New Rule applied (no exception for n-1 -> 0
+                }
+            });
+
+        for(const auto& s : steps) {
+            auto& data = datas[s.msgIdx];
+            int targetRouter = (data.currRouter + s.hdir + NROUTERS) % NROUTERS;
+            int targetSlot = (data.currStoreId + s.vdir + NSLOTS) % NSLOTS; // Unnecessary modulo because, but better safe than sorry
+            if (state.simuInfo.routerBitsOccupied[targetRouter][targetSlot])
+                continue; // Probably someone moved in out way
+            occuMap[data.currRouter][data.currStoreId] = false;
+            occuMap[targetRouter][targetSlot] = true;
+            data.currRouter = targetRouter;
+            data.currStoreId = targetSlot;
+            movingHappend = true;
+        }
+        return movingHappend;
+    }
+
+
+}
 NetworkState simulate(const NetworkState& initialState, const vector<CreateCommand>& createCmds, const vector<MoveCommand>& moveCmds)
 {
     auto retVal{ initialState };
 
-    remove_arrived_packets(retVal);
+    create_occupation_map(retVal);
+
+    handle_arrived_packets(retVal);
     add_new_packets(retVal, createCmds);
     apply_move_commands(retVal, moveCmds);
 
-    vector<bool> isPacketFrozen; // If a packet arrives in its destination it is 'frozen' until the next simulate call
-    fill_n(back_inserter(isPacketFrozen), retVal.dataPackets.size(), false);
-    while (step_packets(retVal, isPacketFrozen)) { }
+    while (step_packets(retVal)) {}
 
     return retVal;
 }

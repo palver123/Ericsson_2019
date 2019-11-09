@@ -33,13 +33,23 @@ struct CommandDescription
     unsigned routerId;
 };
 
+// Additional infos for simulation
+struct SimuInfo
+{
+    int additionalArrivedReq = 0;
+    int additionalArrivedResp = 0;
+    std::array<std::array<bool, NSLOTS>, NROUTERS> routerBitsOccupied; // TODO fill
+};
+
 // The state of the network consisting of 10 routers organized in a Daisy Chain.
 struct NetworkState
 {
     // Bitfield for routers: 0 means the slot is closed, 1 means open.
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
     std::vector<Data> dataPackets;
-
+    SimuInfo simuInfo;
+    std::array<HorizontalDirection, NROUTERS> nextDir; // TODO maintain
+    int ourId;
     void clear();
 };
 
@@ -58,3 +68,10 @@ struct GameContext
     bool hasReceivedEmptyMessage() const;
     void OnMessageReceived(const MessagePiece&);
 };
+
+namespace Router {
+    inline int GetPairOfRouter(int router_idx) {
+        return (router_idx + NROUTERS / 2) % NROUTERS;
+    }
+
+}

@@ -7,6 +7,8 @@ struct Command{};
 
 struct CreateCommand
 {
+    // TODO maintain
+    int router_id = -1; // We need it to simulation (If the bot can, then it will create a new message), we can use this information in the simulation.
     int storeId;
     int packageId;
 };

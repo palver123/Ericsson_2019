@@ -17,3 +17,25 @@ enum class VerticalDirection : char {
     // All slots in the router inherit the state of the 'next' slot (the highest index slot inherits the state of the 0th slot). Data packets inside the slots move in this direction too!
     POSITIVE = 'v'
 };
+
+namespace Dir {
+    inline VerticalDirection opposite(const VerticalDirection& d) {
+        if (d == VerticalDirection::NEGATIVE) return VerticalDirection::POSITIVE;
+        return VerticalDirection::NEGATIVE;
+    }
+    inline HorizontalDirection opposite(const HorizontalDirection& d) {
+        if (d == HorizontalDirection::LEFT) return HorizontalDirection::RIGHT;
+        return HorizontalDirection::LEFT;
+    }
+
+    inline int dirToint(const VerticalDirection& d) {
+        if (d == VerticalDirection::NEGATIVE) return -1;
+        return 1;
+    }
+
+    inline int dirToint(const HorizontalDirection& d) {
+        if (d == HorizontalDirection::LEFT) return -1;
+        return 1;
+    }
+
+}
