@@ -26,7 +26,7 @@ std::string TestingStrategy::step(const NetworkState &turnData, const GameContex
     }
     // IMPORTANT: Assuming packets cannot get lost.
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
-    else if(getNumberOfPlayerPackets(ctx.commandPrefix.routerId) < MAX_PACKETS_IN_SYSTEM)
+    else if(actualData->getNumberOfPlayerPackets(ctx.my_router()) < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
         std::array<bool, NSLOTS> slotTaken {};

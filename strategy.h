@@ -6,17 +6,13 @@
 
 class IStrategy
 {
- public:
-  virtual std::string step(const NetworkState&, const GameContext&);
-  virtual ~IStrategy() = default;
+public:
+    virtual std::string step(const NetworkState&, const GameContext&);
+    virtual ~IStrategy() = default;
 
-
- protected:
-  static int getRandom(int from, int to_exclusive);
-  static ll getRandomLL(ll from, ll to_exclusive);
-
-    int getNumberOfPlayerPackets(unsigned routerIdx) const;
-
+protected:
+    static int getRandom(int from, int to_exclusive);
+    static ll getRandomLL(ll from, ll to_exclusive);
 
     const NetworkState* actualData = nullptr;
     virtual void stepPre(const NetworkState& turnData);

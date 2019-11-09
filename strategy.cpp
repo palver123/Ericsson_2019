@@ -22,16 +22,6 @@ ll IStrategy::getRandomLL(const ll from, const ll to_exclusive)
     return static_cast<ll>(my_random()  % d) + from;
 }
 
-int IStrategy::getNumberOfPlayerPackets(const unsigned routerIdx) const
-{
-    auto res = 0;
-    for (const auto& packet : actualData->dataPackets) {
-        if (packet.fromRouter == routerIdx) 
-            ++res;
-    }
-    return res;
-}
-
 void IStrategy::stepPre(const NetworkState& turnData)
 {
     actualData = &turnData;

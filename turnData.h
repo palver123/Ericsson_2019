@@ -40,6 +40,8 @@ struct NetworkState
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBits;
     std::vector<Data> dataPackets;
 
+    int getNumberOfPlayerPackets(unsigned routerOfPlayer) const;
+    int getNumberOfPlayerPackets(unsigned routerOfPlayer, int& maxMessageId) const;
     void clear();
 };
 

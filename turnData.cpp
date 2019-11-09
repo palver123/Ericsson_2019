@@ -37,6 +37,30 @@ void GameContext::OnMessageReceived(const MessagePiece& msg)
         _lowestEmptyAnswer = msg.index;
 }
 
+int NetworkState::getNumberOfPlayerPackets(const unsigned routerOfPlayer) const
+{
+    auto res = 0;
+    for (const auto& packet : dataPackets) {
+        if (packet.fromRouter == routerOfPlayer)
+            ++res;
+    }
+    return res;
+}
+
+int NetworkState::getNumberOfPlayerPackets(const unsigned routerOfPlayer, int& maxMessageId) const
+{
+    auto res = 0;
+    maxMessageId = -1; // unsigned underflow is well-defined by the standard!
+    for (const auto& packet : dataPackets) {
+        if (packet.fromRouter == routerOfPlayer)
+        {
+            maxMessageId = std::max(maxMessageId, static_cast<int>(packet.messageId));
+            ++res;
+        }
+    }
+    return res;
+}
+
 void NetworkState::clear()
 {
     dataPackets.clear();
