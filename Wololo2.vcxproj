@@ -127,6 +127,7 @@
     <ClInclude Include="commands.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Direction.h" />
+    <ClInclude Include="graph.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="strategy.h" />
@@ -134,6 +135,7 @@
     <ClInclude Include="turnData.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="graph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="simulation.cpp" />
