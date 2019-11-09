@@ -47,22 +47,22 @@ namespace {
     void add_new_packets(NetworkState& state, const vector<CreateCommand>& commands)
     {
         for (const auto& c : commands) {
-            if (c.router_id == -1) {
+            if (c.routerId == -1) {
                 std::cerr << "Invalid router id in CreateCommand during simulation";
                 continue;
             }
-            if (!state.simuInfo.routerBitsOccupied[c.router_id][c.storeId])
+            if (!state.simuInfo.routerBitsOccupied[c.routerId][c.storeId])
             {
-                state.simuInfo.routerBitsOccupied[c.router_id][c.storeId] = true;
+                state.simuInfo.routerBitsOccupied[c.routerId][c.storeId] = true;
                 Data data;
-                data.currRouter = c.router_id;
-                data.fromRouter = c.router_id;
-                data.toRouter = Router::GetPairOfRouter(c.router_id);
+                data.currRouter = c.routerId;
+                data.fromRouter = c.routerId;
+                data.toRouter = Router::GetPairOfRouter(c.routerId);
                 data.dataIndex = c.packageId;
                 // data.messageId No one cares
                 data.currStoreId = c.storeId;
-                data.dir = state.nextDir[c.router_id];
-                state.nextDir[c.router_id] = Dir::opposite(state.nextDir[c.router_id]);
+                data.dir = state.nextDir[c.routerId];
+                state.nextDir[c.routerId] = Dir::opposite(state.nextDir[c.routerId]);
                 state.dataPackets.push_back(data);
             }
         }
