@@ -51,6 +51,7 @@ struct NetworkState
     std::array<HorizontalDirection, NROUTERS> nextDir; // TODO maintain
     int ourId;
     void clear();
+
 };
 
 // Context of the whole game from the first tick to the last (kind of a 'global state')

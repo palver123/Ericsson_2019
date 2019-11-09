@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <iostream>
 #include <cassert>
+#include <string>
+#include <vector>
 using namespace std;
 
 namespace {
@@ -22,7 +24,7 @@ namespace {
         static vector<Data> __additionalPackakes;
         vector<Data>& additionalPackakes = __additionalPackakes;
         additionalPackakes.clear();
-        std::remove_if(state.dataPackets.begin(), state.dataPackets.end(), [&](const Data& data) {
+        state.dataPackets.erase(std::remove_if(state.dataPackets.begin(), state.dataPackets.end(), [&](const Data& data) {
             if (data.currRouter != data.toRouter) return false;
             if (data.toRouter != data.fromRouter) {
                 Data nd = data;
@@ -38,7 +40,7 @@ namespace {
                 state.simuInfo.routerBitsOccupied[data.currRouter][data.currStoreId] = false;
             }
             return true;
-            });
+            }), state.dataPackets.end());
         state.dataPackets.insert(state.dataPackets.end(), additionalPackakes.begin(), additionalPackakes.end());
     }
 
@@ -79,7 +81,7 @@ namespace {
         for(auto& d : state.dataPackets)
         {
             if (d.currRouter != idx) continue;
-            d.dataIndex = (d.dataIndex + offset) % NSLOTS;
+            d.currStoreId = (d.currStoreId + offset) % NSLOTS;
         }
     }
 
@@ -104,7 +106,7 @@ namespace {
                     state.simuInfo.routerBitsOccupied[idx][NSLOTS - 1] = false;
                 }
                 else {
-                    d.dataIndex = (d.dataIndex + NSLOTS - 1) % NSLOTS;
+                    d.currStoreId = (d.currStoreId + NSLOTS - 1) % NSLOTS;
                 }
 
             }
@@ -153,7 +155,7 @@ namespace {
                 steps.push_back({ static_cast<char>(i),static_cast<char>(-1),static_cast<char>(0) });
                 continue;
             }
-            bool occupiedTarget = occuMap[(d.currStoreId + NSLOTS + dir) % NSLOTS][d.currStoreId];
+            bool occupiedTarget = occuMap[(d.currRouter + NROUTERS + dir) % NROUTERS][d.currStoreId];
             if (!occupiedTarget) {
                 steps.push_back({ static_cast<char>(i),static_cast<char>(0),static_cast<char>(dir)});
             }
@@ -199,4 +201,137 @@ NetworkState simulate(const NetworkState& initialState, const vector<CreateComma
     while (step_packets(retVal)) {}
 
     return retVal;
+}
+
+
+namespace {
+    // 63245. game
+    // 0 seed map
+    // tick 12
+    NetworkState inititalStateBase1()
+    {
+        NetworkState state;
+        vector<string> rmp = {
+            {".x.x.xx..x"},
+            {"xxxx....x."},
+            {"xx.xx...x."},
+            {"x.x...x.xx"},
+            {"xxx.xx...."},
+            {"x.x..xx.x."},
+            {"xx...x.xx."},
+                         
+            {"x.xx...xx."},
+            {"xx.x..x.x."},
+            {"x.xx.x..x."},
+            {".xxx..x.x."},
+            {"xx..x..x.x"},
+            {".x.x.xx..x"},
+            {"xx.x...xx."}
+        };
+        for (int i = 0; i < NROUTERS; ++i) state.nextDir[i] = HorizontalDirection::LEFT;
+        state.ourId = 12;
+        for(int i = 0; i< NROUTERS; ++i)
+            for(int j = 0; j < NSLOTS; ++j)
+                state.routerBits[i][j] = rmp[i][j] == '.';
+
+        return state;
+
+    }
+
+}
+
+NetworkState inititalState1() {
+    // 63245. game
+    // 0 seed map
+    // tick 12
+    NetworkState st = inititalStateBase1();
+    {
+        Data d;
+        d.currRouter = 4;
+        d.currStoreId = 6;
+        d.fromRouter = 12;
+        d.toRouter = 5;
+        d.dataIndex = 3;
+        d.dir = HorizontalDirection::RIGHT;
+        st.dataPackets.push_back(d);
+    }
+    return st;
+}
+
+
+bool test_1() {
+    NetworkState st = inititalState1();
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 4 || d1.currStoreId != 5) return false;
+    return true;
+}
+
+
+bool test_2() {
+    NetworkState st = inititalState1();
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::POSITIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 5 || d1.currStoreId != 7) return false;
+    return true;
+}
+
+bool test_3() {
+    NetworkState st = inititalState1();
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 6, VerticalDirection::POSITIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 5 || d1.currStoreId != 7) return false;
+    return true;
+}
+
+bool test_4() {
+    NetworkState st = inititalState1();
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 5, VerticalDirection::POSITIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 4 || d1.currStoreId != 7) return false;
+    return true;
+}
+
+
+bool test_5() {
+    NetworkState st = inititalState1();
+    auto& d = st.dataPackets.front();
+    d.toRouter = d.fromRouter;
+    d.dir = HorizontalDirection::LEFT;
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 1 || d1.currStoreId != 5) return false;
+    return true;
+}
+
+
+void run_sim_tests()
+{
+    std::cout << "Test1 " << test_1() << std::endl;
+    std::cout << "Test2 " << test_2() << std::endl;
+    std::cout << "Test3 " << test_3() << std::endl;
+    std::cout << "Test4 " << test_4() << std::endl;
+    std::cout << "Test5 " << test_5() << std::endl;
 }

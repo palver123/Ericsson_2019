@@ -1,6 +1,7 @@
 #include "turnData.h"
 #include "TestingStrategy.h"
 #include "Reader.h"
+#include "simulation.h"
 
 using namespace std;
 
@@ -22,8 +23,16 @@ int get_map_seed(const int argc, char *argv[])
     return seed;
 }
 
+void run_tests() {
+    run_sim_tests();
+}
+
 int main(int argc, char *argv[])
 {
+    if (argc == 2 && std::string("--test") == argv[1]) {
+        run_tests();
+        return 0;
+    }
     const auto seed = get_map_seed(argc, argv);
     cerr << "Using seed: " << seed << endl;
 
