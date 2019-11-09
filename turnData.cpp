@@ -7,6 +7,11 @@ bool Data::is_request() const
     return toRouter != fromRouter;
 }
 
+unsigned GameContext::my_router() const
+{
+    return commandPrefix.routerId;
+}
+
 bool GameContext::have_all_message_pieces() const
 {
     auto highestReceivedIdx = -1;

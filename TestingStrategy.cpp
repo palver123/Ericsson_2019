@@ -32,19 +32,19 @@ std::string TestingStrategy::step(const NetworkState &turnData, const GameContex
         std::array<bool, NSLOTS> slotTaken {};
         for (const auto& data : turnData.dataPackets)
         {
-            if (data.currRouter == ctx.commandPrefix.routerId)
+            if (data.currRouter == ctx.my_router())
                 slotTaken[data.currStoreId] = true;
         }
 
         for (auto slot = 0; slot < NSLOTS; slot++)
-            if (!slotTaken[slot] && turnData.routerBits[ctx.commandPrefix.routerId][slot])
+            if (!slotTaken[slot] && turnData.routerBits[ctx.my_router()][slot])
                 return fmt::format("CREATE {} {}", slot, _requestCounter++);
     }
 
     // Try to move
     for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
         for (const auto& data : turnData.dataPackets)
-            if (data.currRouter == routerIdx && data.fromRouter == ctx.commandPrefix.routerId)
+            if (data.currRouter == routerIdx && data.fromRouter == ctx.my_router())
                 return fmt::format("MOVE {} {}", routerIdx, getRandom(0, 1) ? VerticalDirection::NEGATIVE : VerticalDirection::POSITIVE);
 
     // Do nothing

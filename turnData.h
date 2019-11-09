@@ -54,6 +54,10 @@ struct GameContext
     // ALL the received answers to our requests so far
     std::map<int, MessagePiece> _allReceivedPieces;
 
+    // The ID of the BOT's router. By default it contains an invalid ID (which will be overwritten when the BOT creates its first data packet)
+    unsigned botRouterId = NROUTERS;
+
+    unsigned my_router() const;
     bool have_all_message_pieces() const;
     bool hasReceivedEmptyMessage() const;
     void OnMessageReceived(const MessagePiece&);
