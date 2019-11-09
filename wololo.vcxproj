@@ -319,6 +319,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\_Git\ericsson_2019\simulation.cpp" />
     <ClInclude Include="C:\_Git\ericsson_2019\commands.h" />
     <ClInclude Include="C:\_Git\ericsson_2019\directions.h" />
+    <ClInclude Include="C:\_Git\ericsson_2019\graph.h" />
+    <ClCompile Include="C:\_Git\ericsson_2019\graph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\_Git\ericsson_2019\ZERO_CHECK.vcxproj">

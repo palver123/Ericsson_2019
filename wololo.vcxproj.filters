@@ -19,6 +19,9 @@
     <ClCompile Include="C:\_Git\ericsson_2019\simulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\_Git\ericsson_2019\graph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\_Git\ericsson_2019\strategy.h">
@@ -43,6 +46,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\_Git\ericsson_2019\directions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\_Git\ericsson_2019\graph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
