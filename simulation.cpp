@@ -326,6 +326,45 @@ bool test_5() {
     return true;
 }
 
+bool test_6() {
+    NetworkState st = inititalState1();
+    auto& d = st.dataPackets.front();
+    d.toRouter = d.fromRouter;
+    d.dir = HorizontalDirection::LEFT;
+    vector<MoveCommand> mvcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::POSITIVE });
+    st = simulate(st, {}, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 1) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 12 || d1.currStoreId != 5) return false;
+    return true;
+}
+
+bool test_7() {
+    NetworkState st = inititalState1();
+    auto& d = st.dataPackets.front();
+    d.toRouter = d.fromRouter;
+    d.dir = HorizontalDirection::LEFT;
+    st.nextDir[12] = HorizontalDirection::RIGHT;
+    vector<MoveCommand> mvcs;
+    vector<CreateCommand> crcs;
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::POSITIVE });
+    crcs.push_back(CreateCommand{ 12, 4, 12 });
+
+    st = simulate(st, crcs, mvcs);
+    const auto& datas = st.dataPackets;
+    if (datas.size() != 2) return false;
+    const auto& d1 = datas[0];
+    if (d1.currRouter != 2 || d1.currStoreId != 5) return false;
+    const auto& d2 = datas[1];
+    if (d2.currRouter != 1 || d2.currStoreId != 5) return false;
+    return true;
+}
 
 void run_sim_tests()
 {
@@ -334,4 +373,6 @@ void run_sim_tests()
     std::cout << "Test3 " << test_3() << std::endl;
     std::cout << "Test4 " << test_4() << std::endl;
     std::cout << "Test5 " << test_5() << std::endl;
+    std::cout << "Test6 " << test_6() << std::endl;
+    std::cout << "Test7 " << test_7() << std::endl;
 }

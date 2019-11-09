@@ -8,12 +8,12 @@
 #include "directions.h"
 
 struct Data {
-    unsigned int currRouter;
-    unsigned int currStoreId;
-    unsigned int dataIndex;
-    unsigned int messageId;
-    unsigned int fromRouter;
-    unsigned int toRouter;
+    int currRouter;
+    int currStoreId;
+    int dataIndex;
+    int messageId;
+    int fromRouter;
+    int toRouter;
     HorizontalDirection dir;
 
     // Is the content of the data package a request or an answer to a request
