@@ -116,6 +116,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,7 +129,9 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="graph.h" />
+    <ClInclude Include="ProbabilityScoreSrategy.h" />
     <ClInclude Include="Reader.h" />
+    <ClInclude Include="Scores.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="strategy.h" />
     <ClInclude Include="TestingStrategy.h" />
@@ -137,7 +140,9 @@
   <ItemGroup>
     <ClCompile Include="graph.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ProbabilityScoreSrategy.cpp" />
     <ClCompile Include="Reader.cpp" />
+    <ClCompile Include="Scores.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="strategy.cpp" />
     <ClCompile Include="TestingStrategy.cpp" />

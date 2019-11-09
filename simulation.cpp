@@ -424,12 +424,12 @@ bool test_9() {
 
 void run_sim_tests()
 {
-    std::cout << "Test1 " << test_1() << std::endl;
-    std::cout << "Test2 " << test_2() << std::endl;
-    std::cout << "Test3 " << test_3() << std::endl;
-    std::cout << "Test4 " << test_4() << std::endl;
-    std::cout << "Test5 " << test_5() << std::endl;
-    std::cout << "Test6 " << test_6() << std::endl;
-    std::cout << "Test7 " << test_7() << std::endl;
-    std::cout << "Test8 " << test_8() << std::endl;
+    std::cout << "Simulation_Test1 " << test_1() << std::endl;
+    std::cout << "Simulation_Test2 " << test_2() << std::endl;
+    std::cout << "Simulation_Test3 " << test_3() << std::endl;
+    std::cout << "Simulation_Test4 " << test_4() << std::endl;
+    std::cout << "Simulation_Test5 " << test_5() << std::endl;
+    std::cout << "Simulation_Test6 " << test_6() << std::endl;
+    std::cout << "Simulation_Test7 " << test_7() << std::endl;
+    std::cout << "Simulation_Test8 " << test_8() << std::endl;
 }

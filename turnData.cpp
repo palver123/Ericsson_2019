@@ -7,8 +7,16 @@ bool Data::is_request() const
     return toRouter != fromRouter;
 }
 
-unsigned GameContext::botRouterId = NROUTERS;
-unsigned GameContext::ourId = NROUTERS;
+int Data::distance_from_target() const
+{
+    if (dir == HorizontalDirection::LEFT)
+        return (currRouter - toRouter + NROUTERS) % NROUTERS;
+    else
+        return (toRouter - currRouter + NROUTERS) % NROUTERS;
+}
+
+int GameContext::botRouterId = NROUTERS;
+int GameContext::ourId = NROUTERS;
 
 bool GameContext::have_all_message_pieces() const
 {

@@ -15,5 +15,5 @@ protected:
     static ll getRandomLL(ll from, ll to_exclusive);
 
     const NetworkState* actualData = nullptr;
-    virtual void stepPre(const NetworkState& turnData);
+    virtual void stepPre(const NetworkState& turnData, const GameContext& ctx);
 };

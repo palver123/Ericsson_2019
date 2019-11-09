@@ -18,6 +18,7 @@ struct Data {
 
     // Is the content of the data package a request or an answer to a request
     bool is_request() const;
+    int distance_from_target() const;
 };
 
 struct MessagePiece {
@@ -67,7 +68,7 @@ struct GameContext
     std::map<int, MessagePiece> _allReceivedPieces;
 
     // The ID of the BOT's router. By default it contains an invalid ID (which will be overwritten when the BOT creates its first data packet)
-    static unsigned botRouterId, ourId;
+    static int botRouterId, ourId;
 
     bool have_all_message_pieces() const;
     bool hasReceivedEmptyMessage() const;

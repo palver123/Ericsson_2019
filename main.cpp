@@ -3,7 +3,10 @@
 #include "Reader.h"
 #include "simulation.h"
 #include "graph.h"
+#include "ProbabilityScoreSrategy.h"
+#include <chrono>
 
+#define  TIME_LOGGING
 using namespace std;
 
 int get_map_seed(const int argc, char *argv[])
@@ -47,16 +50,33 @@ int main(int argc, char *argv[])
     Reader reader = {};
     NetworkState turnData;
     GameContext context;
-    TestingStrategy strategy;
-    
+
+    //TestingStrategy strategy;
+    ProbabilityScoreSrategy strategy;
+
     while(reader.readData(turnData, context))
     {
+
+#ifdef TIME_LOGGING
+        std::cerr << "Data received" << std::endl;
         // TODO logika jobb mint a semmitteves
+        long long start = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+            ).count();
+#endif
         auto command = strategy.step(turnData, context);
         
         // Ha szeretnetek debug uzenetet kuldeni, akkor megtehetitek.
         // Vigyazzatok, mert maximalisan csak 1024 * 1024 bajtot kaptok vissza
         cerr << "Send " << command << endl;
+
+#ifdef TIME_LOGGING
+        long long end = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+            ).count();
+        std::cerr << end - start << " ms" << std::endl;
+#endif
+
        
         // standard out-ra meg mehet ki a megoldas! Mas ne irodjon ide ki ;)
         cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << GameContext::ourId << " " << command << endl;

@@ -1,8 +1,9 @@
-#include "TestingStrategy.h"
+#include "ProbabilityScoreSrategy.h"
 
-std::string TestingStrategy::step(const NetworkState &turnData, const GameContext& ctx)
+std::string ProbabilityScoreSrategy::step(const NetworkState& turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
+
     if (ctx.hasReceivedEmptyMessage())
     {
         // Guess the solution
@@ -24,10 +25,10 @@ std::string TestingStrategy::step(const NetworkState &turnData, const GameContex
     }
     // IMPORTANT: Assuming packets cannot get lost.
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
-    else if(actualData->getNumberOfPlayerPackets(GameContext::ourId) < MAX_PACKETS_IN_SYSTEM)
+    else if (actualData->getNumberOfPlayerPackets(GameContext::ourId) < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
-        std::array<bool, NSLOTS> slotTaken {};
+        std::array<bool, NSLOTS> slotTaken{};
         for (const auto& data : turnData.dataPackets)
         {
             if (data.currRouter == GameContext::ourId)
@@ -40,6 +41,7 @@ std::string TestingStrategy::step(const NetworkState &turnData, const GameContex
     }
 
     // Try to move
+
     for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
         for (const auto& data : turnData.dataPackets)
             if (data.currRouter == routerIdx && data.fromRouter == GameContext::ourId)
