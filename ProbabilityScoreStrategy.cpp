@@ -91,8 +91,8 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
 
     for (int i : possibleRouters)
     {
-        cmds.push_back(MoveCommand{ i, VerticalDirection::NEGATIVE });
-        cmds.push_back(MoveCommand{ i, VerticalDirection::POSITIVE });
+        cmds.emplace_back(i, VerticalDirection::NEGATIVE);
+        cmds.emplace_back(i, VerticalDirection::POSITIVE);
     }
 
     double best_score = -1e22;
@@ -108,13 +108,13 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
 }
 
 
-#define FOR_MOVE(r, canMove) moveCmds.push_back(MoveCommand{});\
+#define FOR_MOVE(r, canMove) moveCmds.emplace_back();\
     for (auto r = 0; r < NROUTERS; ++r) { if(!(canMove)) continue; moveCmds.back().routerId = r; \
     for (auto d : possibleDirsV) { moveCmds.back().dir = d;
 
 #define FOR_CREATE(slotTaken, nPackets, maxMsgId, playerId)\
     if (nPackets < MAX_PACKETS_IN_SYSTEM) { \
-        createCmds.push_back(CreateCommand{ playerId, 0, maxMsgId + 1 }); \
+        createCmds.emplace_back(playerId, 0, maxMsgId + 1); \
         for (auto s = 0; s < NSLOTS; ++s) { \
             if (slotTaken[s]) continue; \
             createCmds.back().storeId = s;
@@ -127,7 +127,7 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
         bestScore = score; \
         bestCommand = my_command;
 
-string getBestMoveInNextTurn(const NetworkState& initialState, const double scoringFunc(const NetworkState&))
+string getBestMoveInNextTurn(const NetworkState& initialState, double scoringFunc(const NetworkState&))
 {
     vector<CreateCommand> createCmds{};
     vector<MoveCommand> moveCmds{};
