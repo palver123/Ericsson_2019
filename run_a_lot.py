@@ -75,25 +75,26 @@ seeds = [
     131176, 719183, 304611, 299156, 110127, 290186, 880097, 79410, 362371, 336106, 97403, 806887, 650903, 341841,
     317639, 770873, 648082, 664258, 658198]
 results = []
-count = 100
+count = 1
 
 score_pattern = re.compile('END [(]latest message[)]: SCORE (\\d+)')
 
-print(seeds[60])
-# for i in range(0, count):
-#     print(f'Running {i}')
-#     p1 = subprocess.Popen(['./console.runner/bin/ConsoleRunner.exe', '-e', 'x64/Debug/Wololo2.exe',
-#                            '--host', 'ecovpn.dyndns.org', '--port', '11222', '-m', str(seeds[i])
-#                            ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#     res = p1.communicate()
-#     res = res[0].decode()
-#     rr = -1
-#
-#     for l in res.splitlines():
-#         if score_pattern.match(l):
-#             rr = int(score_pattern.match(l).group(1))
-#     if rr != -1:
-#         results.append(rr)
-#     print(rr)
-#
-# print(f"Count {len(results)}/{count}, min {min(results)}, max {max(results)}, avg {numpy.mean(results)}")
+#print(seeds[60])
+
+for i in range(0, count):
+    print(f'Running {i}')
+    p1 = subprocess.Popen(['./console.runner/bin/ConsoleRunner.exe', '-e', 'x64/Debug/Wololo2.exe',
+                           '--host', 'ecovpn.dyndns.org', '--port', '11222', '-m', str(seeds[i])
+                           ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    res = p1.communicate()
+    res = res[0].decode()
+    rr = -1
+
+    for l in res.splitlines():
+        if score_pattern.match(l):
+            rr = int(score_pattern.match(l).group(1))
+    if rr != -1:
+        results.append(rr)
+    print(rr)
+
+print(f"Count {len(results)}/{count}, min {min(results)}, max {max(results)}, avg {numpy.mean(results)}")

@@ -38,9 +38,11 @@ bool GameContext::hasReceivedEmptyMessage() const
 
 void GameContext::OnMessageReceived(const MessagePiece& msg)
 {
-    _allReceivedPieces.emplace(msg.index, msg);
+    if (msg.message.size())
+        _allReceivedPieces.emplace(msg.index, msg);
     if (msg.message.empty() && (!hasReceivedEmptyMessage() || msg.index < _lowestEmptyAnswer))
         _lowestEmptyAnswer = msg.index;
+
 }
 
 int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer) const
