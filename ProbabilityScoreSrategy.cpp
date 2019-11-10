@@ -1,4 +1,7 @@
 #include "ProbabilityScoreSrategy.h"
+#include "commands.h"
+#include "Scores.h"
+#include "simulation.h"
 
 std::string ProbabilityScoreSrategy::step(const NetworkState& turnData, const GameContext& ctx)
 {
@@ -42,11 +45,27 @@ std::string ProbabilityScoreSrategy::step(const NetworkState& turnData, const Ga
 
     // Try to move
 
-    for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
-        for (const auto& data : turnData.dataPackets)
-            if (data.currRouter == routerIdx && data.fromRouter == GameContext::ourId)
-                return fmt::format("MOVE {} {}", routerIdx, getRandom(0, 1) ? VerticalDirection::NEGATIVE : VerticalDirection::POSITIVE);
+    std::set<int> possibleRouters;
+    for (const auto& d : turnData.dataPackets)
+        if (d.fromRouter == GameContext::ourId)
+            possibleRouters.insert(d.currRouter);
 
-    // Do nothing
-    return "PASS";
+    std::vector<MoveCommand> cmds;
+
+    for (int i : possibleRouters)
+    {
+        cmds.push_back(MoveCommand{ i, VerticalDirection::NEGATIVE });
+        cmds.push_back(MoveCommand{ i, VerticalDirection::POSITIVE });
+    }
+
+    double best_score = -1e22;
+    MoveCommand best_cmd{0, VerticalDirection::NEGATIVE};
+    for(const auto& c : cmds) {
+        double score = Scores::distance_based_scoring(simulate(turnData, {}, { c }));
+        if (best_score < score) {
+            best_score = score;
+            best_cmd = c;
+        }
+    }
+    return best_cmd.to_exec_string();
 }

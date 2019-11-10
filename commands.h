@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "fmt/format.h"
 #include "directions.h"
 
 struct Command{};
@@ -15,8 +16,11 @@ struct CreateCommand
 
 struct MoveCommand
 {
-    unsigned routerId;
+    int routerId;
     VerticalDirection dir;
+    std::string to_exec_string() const {
+        return fmt::format("MOVE {} {}", routerId, dir);
+    }
 };
 
 struct GuessCommand

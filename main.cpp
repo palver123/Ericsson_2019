@@ -11,7 +11,7 @@ using namespace std;
 
 int get_map_seed(const int argc, char *argv[])
 {
-    auto seed = 0;
+    auto seed = 12;
     if (argc > 1)
     {
         const string arg{ argv[1] };
