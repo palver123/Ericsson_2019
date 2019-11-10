@@ -1,9 +1,9 @@
-#include "ProbabilityScoreSrategy.h"
+#include "ProbabilityScoreStrategy.h"
 #include "commands.h"
 #include "Scores.h"
 #include "simulation.h"
 
-std::string ProbabilityScoreSrategy::step(const NetworkState& turnData, const GameContext& ctx)
+std::string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
 

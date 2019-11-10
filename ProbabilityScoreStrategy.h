@@ -2,7 +2,7 @@
 
 #include "strategy.h"
 
-class ProbabilityScoreSrategy : public IStrategy
+class ProbabilityScoreStrategy : public IStrategy
 {
     int _requestCounter{};
 public:

@@ -3,7 +3,7 @@
 #include "Reader.h"
 #include "simulation.h"
 #include "graph.h"
-#include "ProbabilityScoreSrategy.h"
+#include "ProbabilityScoreStrategy.h"
 #include <chrono>
 
 #define  TIME_LOGGING
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     GameContext context;
 
     //TestingStrategy strategy;
-    ProbabilityScoreSrategy strategy;
+    ProbabilityScoreStrategy strategy;
 
     while(reader.readData(turnData, context))
     {
