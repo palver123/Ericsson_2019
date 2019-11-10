@@ -17,9 +17,6 @@
     <ClCompile Include="simulation.cpp">
       <Filter>strategy_components</Filter>
     </ClCompile>
-    <ClCompile Include="graph.cpp">
-      <Filter>strategy_components</Filter>
-    </ClCompile>
     <ClCompile Include="turnData.cpp">
       <Filter>data_structures</Filter>
     </ClCompile>
@@ -42,9 +39,6 @@
       <Filter>strategy_components</Filter>
     </ClInclude>
     <ClInclude Include="simulation.h">
-      <Filter>strategy_components</Filter>
-    </ClInclude>
-    <ClInclude Include="graph.h">
       <Filter>strategy_components</Filter>
     </ClInclude>
     <ClInclude Include="commands.h">

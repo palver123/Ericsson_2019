@@ -3,7 +3,44 @@
 #include "Scores.h"
 #include "simulation.h"
 
-std::string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameContext& ctx)
+using namespace std;
+
+array<bool, NSLOTS> slotTakenMy{};
+array<bool, NSLOTS> slotTakenBot{};
+array<bool, NROUTERS> canMoveRouterMe{};
+array<bool, NROUTERS> canMoveRouterBot{};
+double bestScore;
+string bestCommand;
+
+void prepare_global_variables(const vector<Data>& dataPackets)
+{
+    for (const auto& data : dataPackets)
+    {
+        if (data.currRouter == GameContext::ourId)
+        {
+            slotTakenMy[data.currStoreId] = true;
+        }
+        if (data.fromRouter == GameContext::ourId)
+            canMoveRouterMe[data.currRouter] = true;
+    }
+
+    if (GameContext::botRouterId < NROUTERS)
+    {
+        for (const auto& data : dataPackets)
+        {
+            if (data.currRouter == GameContext::botRouterId)
+                slotTakenBot[data.currStoreId] = true;
+            if (data.fromRouter == GameContext::botRouterId)
+                canMoveRouterBot[data.currRouter] = true;
+        }
+    }
+
+    bestScore = std::numeric_limits<double>::min();
+    bestCommand = "PASS";
+}
+
+
+string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
 
@@ -31,7 +68,7 @@ std::string ProbabilityScoreStrategy::step(const NetworkState& turnData, const G
     else if (actualData->getNumberOfPlayerPackets(GameContext::ourId) < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
-        std::array<bool, NSLOTS> slotTaken{};
+        array<bool, NSLOTS> slotTaken{};
         for (const auto& data : turnData.dataPackets)
         {
             if (data.currRouter == GameContext::ourId)
@@ -45,12 +82,12 @@ std::string ProbabilityScoreStrategy::step(const NetworkState& turnData, const G
 
     // Try to move
 
-    std::set<int> possibleRouters;
+    set<int> possibleRouters;
     for (const auto& d : turnData.dataPackets)
         if (d.fromRouter == GameContext::ourId)
             possibleRouters.insert(d.currRouter);
 
-    std::vector<MoveCommand> cmds;
+    vector<MoveCommand> cmds;
 
     for (int i : possibleRouters)
     {
@@ -68,4 +105,85 @@ std::string ProbabilityScoreStrategy::step(const NetworkState& turnData, const G
         }
     }
     return best_cmd.to_exec_string();
+}
+
+
+#define FOR_MOVE(r, canMove) moveCmds.push_back(MoveCommand{});\
+    for (auto r = 0; r < NROUTERS; ++r) { if(!(canMove)) continue; moveCmds.back().routerId = r; \
+    for (auto d : possibleDirsV) { moveCmds.back().dir = d;
+
+#define FOR_CREATE(slotTaken, nPackets, maxMsgId, playerId)\
+    if (nPackets < MAX_PACKETS_IN_SYSTEM) { \
+        createCmds.push_back(CreateCommand{ playerId, 0, maxMsgId + 1 }); \
+        for (auto s = 0; s < NSLOTS; ++s) { \
+            if (slotTaken[s]) continue; \
+            createCmds.back().storeId = s;
+
+#define END_COMMAND_M }} moveCmds.pop_back();
+#define END_COMMAND_C } createCmds.pop_back(); }
+
+#define EVAL score = scoringFunc(simulate(initialState, createCmds, moveCmds)); \
+    if (score > bestScore) \
+        bestScore = score; \
+        bestCommand = my_command;
+
+string getBestMoveInNextTurn(const NetworkState& initialState, const double scoringFunc(const NetworkState&))
+{
+    vector<CreateCommand> createCmds{};
+    vector<MoveCommand> moveCmds{};
+
+    prepare_global_variables(initialState.dataPackets);
+
+    array<VerticalDirection, 2> possibleDirsV = { VerticalDirection::NEGATIVE, VerticalDirection::POSITIVE };
+    const auto knowBotRouter = GameContext::botRouterId < NROUTERS;
+    auto maxMessageId_mine = -1;
+    auto maxMessageId_bot = -1;
+    const auto nPacketsMine = initialState.getNumberOfPlayerPackets(GameContext::ourId, maxMessageId_mine);
+    const auto nPacketsBot = knowBotRouter ? initialState.getNumberOfPlayerPackets(GameContext::botRouterId, maxMessageId_bot) : MAX_PACKETS_IN_SYSTEM;
+    double score;
+
+    // The system is guaranteed to move a router in an arbitrary direction
+    FOR_MOVE(rSys, true)
+        // Simulate the case when I pass
+        string my_command = "PASS";
+        EVAL     // both me and the BOT pass
+
+        FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+            EVAL // the BOT creates a packet
+        END_COMMAND_C
+
+        FOR_MOVE(rBot, canMoveRouterBot[rBot])
+            EVAL // the BOT moves a router
+        END_COMMAND_M
+
+        // Simulate the case when I create a packet
+        FOR_CREATE(slotTakenMy, nPacketsMine, maxMessageId_mine, GameContext::ourId)
+            my_command = createCmds.back().to_exec_string();
+            EVAL     // the BOT passes
+
+            FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+                EVAL // the BOT creates a packet too
+            END_COMMAND_C
+
+            FOR_MOVE(rBot, canMoveRouterBot[rBot])
+                EVAL // the BOT moves a router
+            END_COMMAND_M
+        END_COMMAND_C
+
+        // Simulate the case when I move a router
+        FOR_MOVE(rMe, canMoveRouterMe[rMe])
+            my_command = moveCmds.back().to_exec_string();
+            EVAL     // the BOT passes
+
+            FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+                EVAL // the BOT creates a packet
+            END_COMMAND_C
+
+            FOR_MOVE(rBot, canMoveRouterBot[rBot])
+                EVAL // the BOT moves a router too
+            END_COMMAND_M
+        END_COMMAND_M
+    END_COMMAND_M
+
+    return bestCommand;
 }
