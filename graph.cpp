@@ -32,13 +32,28 @@ void prepate_global_variables(const vector<Data>& dataPackets)
     }
 }
 
+#define FOR_MOVE(r, canMove) moveCmds.push_back(MoveCommand{});\
+    for (auto r = 0; r < NROUTERS; ++r) { if(!(canMove)) continue; moveCmds.back().routerId = r; \
+    for (auto d : possibleDirsV) { moveCmds.back().dir = d;
+
+#define FOR_CREATE(slotTaken, nPackets, maxMsgId, playerId)\
+    if (nPackets < MAX_PACKETS_IN_SYSTEM) { \
+        createCmds.push_back(CreateCommand{ playerId, 0, maxMsgId + 1 }); \
+        for (auto s = 0; s < NSLOTS; ++s) { \
+            if (slotTaken[s]) continue; \
+            createCmds.back().storeId = s;
+
+#define END_COMMAND_M }} moveCmds.pop_back();
+#define END_COMMAND_C } createCmds.pop_back(); }
+
 vector<NetworkState> possible_states_after(const NetworkState& initialState)
 {
-    vector<CreateCommand> createCmds;
-    vector<MoveCommand> moveCmds{1};
-    vector<NetworkState> states;
+    vector<CreateCommand> createCmds{};
+    vector<MoveCommand> moveCmds{};
+    vector<NetworkState> states{};
 
     prepate_global_variables(initialState.dataPackets);
+
     array<VerticalDirection, 2> possibleDirsV = { VerticalDirection::NEGATIVE, VerticalDirection::POSITIVE };
     const auto knowBotRouter = GameContext::botRouterId < NROUTERS;
     auto maxMessageId_mine = -1;
@@ -47,152 +62,45 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
     const auto nPacketsBot = knowBotRouter ? initialState.getNumberOfPlayerPackets(GameContext::botRouterId, maxMessageId_bot) : MAX_PACKETS_IN_SYSTEM;
 
     // The system is guaranteed to move a router in an arbitrary direction
-    for (moveCmds.back().routerId = 0; moveCmds.back().routerId < NROUTERS; ++moveCmds.back().routerId)
-    {
-        for (auto dirSys : possibleDirsV)
-        {
-            moveCmds.back().dir = dirSys;
+    FOR_MOVE(rSys, true)
+        // Simulate the case when I pass
+        states.push_back(simulate(initialState, createCmds, moveCmds));     // both me and the BOT pass
 
-            // Simulate the case when I pass
-            {
-                // both me and the BOT pass
-                states.push_back(simulate(initialState, createCmds, moveCmds));
+        FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+            states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT creates a packet
+        END_COMMAND_C
 
-                // the BOT creates a packet
-                if (nPacketsBot < MAX_PACKETS_IN_SYSTEM)
-                {
-                    createCmds.push_back(CreateCommand{ static_cast<int>(GameContext::botRouterId), 0, maxMessageId_bot + 1 });
-                    for (auto storeIdBot = 0; storeIdBot < NSLOTS; ++storeIdBot)
-                    {
-                        if (slotTakenBot[storeIdBot])
-                            continue;
+        FOR_MOVE(rBot, canMoveRouterBot[rBot])
+            states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT moves a router
+        END_COMMAND_M
 
-                        createCmds.back().storeId = storeIdBot;
-                        states.push_back(simulate(initialState, createCmds, moveCmds));
-                    }
-                    createCmds.pop_back();
-                }
+        // Simulate the case when I create a packet
+        FOR_CREATE(slotTakenMy, nPacketsMine, maxMessageId_mine, GameContext::ourId)
+            states.push_back(simulate(initialState, createCmds, moveCmds));     // the BOT passes
+            
+            FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT creates a packet too
+            END_COMMAND_C
 
-                // the BOT moves a router
-                moveCmds.push_back(MoveCommand{});
-                for (auto rBot = 0; rBot < NROUTERS; ++rBot)
-                {
-                    if (!canMoveRouterBot[rBot])
-                        continue;
+            FOR_MOVE(rBot, canMoveRouterBot[rBot])
+                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT moves a router
+            END_COMMAND_M
+        END_COMMAND_C
 
-                    moveCmds.back().routerId = rBot;
-                    for (auto dirBot : possibleDirsV)
-                    {
-                        moveCmds.back().dir = dirBot;
-                        states.push_back(simulate(initialState, createCmds, moveCmds));
-                    }
-                }
-                moveCmds.pop_back();
-            }
+        // Simulate the case when I move a router
+        FOR_MOVE(rMe, canMoveRouterMe[rMe])            
+            states.push_back(simulate(initialState, createCmds, moveCmds));     // the BOT passes
 
-            if (nPacketsMine < MAX_PACKETS_IN_SYSTEM)
-            {
-                // Simulate the case when I create a packet
-                createCmds.push_back(CreateCommand{ static_cast<int>(GameContext::ourId), 0, maxMessageId_mine + 1 });
-                for (auto storeId = 0; storeId < NSLOTS; ++storeId)
-                {
-                    if (slotTakenMy[storeId])
-                        continue;
+            FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT creates a packet
+            END_COMMAND_C
 
-                    createCmds.back().storeId = storeId;
+            FOR_MOVE(rBot, canMoveRouterBot[rBot])
+                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT moves a router too
+            END_COMMAND_M
+        END_COMMAND_M
+    END_COMMAND_M
 
-                    // the BOT passes
-                    states.push_back(simulate(initialState, createCmds, moveCmds));
-
-                    // the BOT creates a packet too
-                    if (nPacketsBot < MAX_PACKETS_IN_SYSTEM)
-                    {
-                        createCmds.push_back(CreateCommand{ static_cast<int>(GameContext::botRouterId), 0, maxMessageId_bot + 1 });
-                        for (auto storeIdBot = 0; storeIdBot < NSLOTS; ++storeIdBot)
-                        {
-                            if (slotTakenBot[storeIdBot])
-                                continue;
-
-                            createCmds.back().storeId = storeIdBot;
-                            states.push_back(simulate(initialState, createCmds, moveCmds));
-                        }
-                        createCmds.pop_back();
-                    }
-
-                    // the BOT moves a router
-                    moveCmds.push_back(MoveCommand{});
-                    for (auto rBot = 0; rBot < NROUTERS; ++rBot)
-                    {
-                        if (!canMoveRouterBot[rBot])
-                            continue;
-
-                        moveCmds.back().routerId = rBot;
-                        for (auto dirBot : possibleDirsV)
-                        {
-                            moveCmds.back().dir = dirBot;
-                            states.push_back(simulate(initialState, createCmds, moveCmds));
-                        }
-                    }
-                    moveCmds.pop_back();
-                }
-                createCmds.pop_back();
-            }
-
-            // Simulate the case when I move a router
-            {
-                moveCmds.push_back(MoveCommand{});
-                for (auto rMe = 0; rMe < NROUTERS; ++rMe)
-                {
-                    if (!canMoveRouterMe[rMe])
-                        continue;
-
-                    moveCmds.back().routerId = rMe;
-                    for (auto dirMe : possibleDirsV)
-                    {
-                        moveCmds.back().dir = dirMe;
-
-                        // the BOT passes
-                        states.push_back(simulate(initialState, createCmds, moveCmds));
-
-                        // the BOT creates a packet
-                        if (nPacketsBot < MAX_PACKETS_IN_SYSTEM)
-                        {
-                            createCmds.push_back(CreateCommand{ static_cast<int>(GameContext::botRouterId), 0, maxMessageId_bot + 1 });
-                            for (auto storeIdBot = 0; storeIdBot < NSLOTS; ++storeIdBot)
-                            {
-                                if (slotTakenBot[storeIdBot])
-                                    continue;
-
-                                createCmds.back().storeId = storeIdBot;
-                                states.push_back(simulate(initialState, createCmds, moveCmds));
-                            }
-                            createCmds.pop_back();
-                        }
-
-                        // the BOT moves a router too
-                        moveCmds.push_back(MoveCommand{});
-                        for (auto rBot = 0; rBot < NROUTERS; ++rBot)
-                        {
-                            if (!canMoveRouterBot[rBot])
-                                continue;
-
-                            moveCmds.back().routerId = rBot;
-                            for (auto dirBot : possibleDirsV)
-                            {
-                                moveCmds.back().dir = dirBot;
-
-                                // the BOT passes
-                                states.push_back(simulate(initialState, createCmds, moveCmds));
-                            }
-                        }
-                        moveCmds.pop_back();
-                    }
-                }
-                moveCmds.pop_back();                
-            }
-        }
-    }
-    
     return states;
 }
 
