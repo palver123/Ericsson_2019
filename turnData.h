@@ -51,8 +51,8 @@ struct NetworkState
     SimuInfo simuInfo;
     std::array<HorizontalDirection, NROUTERS> nextDir; // TODO maintain
 
-    int getNumberOfPlayerPackets(unsigned routerOfPlayer) const;
-    int getNumberOfPlayerPackets(unsigned routerOfPlayer, int& maxMessageId) const;
+    int getNumberOfPlayerPackets(int routerOfPlayer) const;
+    int getNumberOfPlayerPackets(int routerOfPlayer, int& maxMessageId) const;
     void clear();
 };
 
