@@ -144,7 +144,7 @@ namespace {
         bool movingHappend = false;
         auto& datas = state.dataPackets;
         steps.clear();
-        for(int i = 0; i<datas.size(); ++i) {
+        for(int i = 0; i<static_cast<int>(datas.size()); ++i) {
             const auto& d = datas[i];
             if (d.toRouter == d.currRouter)
                 continue; // Frozen

@@ -40,7 +40,7 @@ std::string TestingStrategy::step(const NetworkState &turnData, const GameContex
     }
 
     // Try to move
-    for (size_t routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
+    for (int routerIdx = 0; routerIdx < NROUTERS; ++routerIdx)
         for (const auto& data : turnData.dataPackets)
             if (data.currRouter == routerIdx && data.fromRouter == GameContext::ourId)
                 return fmt::format("MOVE {} {}", routerIdx, getRandom(0, 1) ? VerticalDirection::NEGATIVE : VerticalDirection::POSITIVE);

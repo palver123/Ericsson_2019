@@ -40,3 +40,6 @@ packages/
 !/console.runner/bin/ConsoleRunner.pdb
 !/console.runner/bin/ConsoleRunner.exe
 Wololo2*
+.idea/
+venv/
+

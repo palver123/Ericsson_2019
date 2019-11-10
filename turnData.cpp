@@ -28,7 +28,7 @@ bool GameContext::have_all_message_pieces() const
         highestReceivedIdx = receivedPiece.first;
     }
 
-    return highestReceivedIdx = _lowestEmptyAnswer - 1;
+    return highestReceivedIdx == _lowestEmptyAnswer - 1;
 }
 
 bool GameContext::hasReceivedEmptyMessage() const
