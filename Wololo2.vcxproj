@@ -127,9 +127,9 @@
   <ItemGroup>
     <ClInclude Include="commands.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="Direction.h" />
+    <ClInclude Include="directions.h" />
     <ClInclude Include="graph.h" />
-    <ClInclude Include="ProbabilityScoreSrategy.h" />
+    <ClInclude Include="ProbabilityScoreStrategy.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Scores.h" />
     <ClInclude Include="simulation.h" />
@@ -140,7 +140,7 @@
   <ItemGroup>
     <ClCompile Include="graph.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ProbabilityScoreSrategy.cpp" />
+    <ClCompile Include="ProbabilityScoreStrategy.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="Scores.cpp" />
     <ClCompile Include="simulation.cpp" />
