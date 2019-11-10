@@ -1,6 +1,6 @@
 #pragma once
 
-#include "strategy.h"
+#include "IStrategy.h"
 
 class ProbabilityScoreStrategy : public IStrategy
 {

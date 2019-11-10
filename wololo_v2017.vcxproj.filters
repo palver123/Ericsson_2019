@@ -5,9 +5,6 @@
     <ClCompile Include="ProbabilityScoreStrategy.cpp">
       <Filter>strategies</Filter>
     </ClCompile>
-    <ClCompile Include="strategy.cpp">
-      <Filter>strategies</Filter>
-    </ClCompile>
     <ClCompile Include="TestingStrategy.cpp">
       <Filter>strategies</Filter>
     </ClCompile>
@@ -26,13 +23,13 @@
     <ClCompile Include="turnData.cpp">
       <Filter>data_structures</Filter>
     </ClCompile>
+    <ClCompile Include="IStrategy.cpp">
+      <Filter>strategies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h" />
     <ClInclude Include="ProbabilityScoreStrategy.h">
-      <Filter>strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="strategy.h">
       <Filter>strategies</Filter>
     </ClInclude>
     <ClInclude Include="TestingStrategy.h">
@@ -58,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="turnData.h">
       <Filter>data_structures</Filter>
+    </ClInclude>
+    <ClInclude Include="IStrategy.h">
+      <Filter>strategies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

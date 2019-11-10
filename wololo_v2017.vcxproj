@@ -137,7 +137,7 @@
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Scores.h" />
     <ClInclude Include="simulation.h" />
-    <ClInclude Include="strategy.h" />
+    <ClInclude Include="IStrategy.h" />
     <ClInclude Include="TestingStrategy.h" />
     <ClInclude Include="turnData.h" />
   </ItemGroup>
@@ -148,7 +148,7 @@
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="Scores.cpp" />
     <ClCompile Include="simulation.cpp" />
-    <ClCompile Include="strategy.cpp" />
+    <ClCompile Include="IStrategy.cpp" />
     <ClCompile Include="TestingStrategy.cpp" />
     <ClCompile Include="turnData.cpp" />
   </ItemGroup>

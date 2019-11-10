@@ -1,4 +1,4 @@
-#include "strategy.h"
+#include "IStrategy.h"
 
 #include <random>
 
