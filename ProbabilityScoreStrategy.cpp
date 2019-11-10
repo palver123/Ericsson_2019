@@ -9,6 +9,8 @@ array<bool, NSLOTS> slotTakenMy{};
 array<bool, NSLOTS> slotTakenBot{};
 array<bool, NROUTERS> canMoveRouterMe{};
 array<bool, NROUTERS> canMoveRouterBot{};
+double bestScore;
+string bestCommand;
 
 void prepare_global_variables(const vector<Data>& dataPackets)
 {
@@ -32,6 +34,9 @@ void prepare_global_variables(const vector<Data>& dataPackets)
                 canMoveRouterBot[data.currRouter] = true;
         }
     }
+
+    bestScore = std::numeric_limits<double>::min();
+    bestCommand = "PASS";
 }
 
 
@@ -117,11 +122,15 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
 #define END_COMMAND_M }} moveCmds.pop_back();
 #define END_COMMAND_C } createCmds.pop_back(); }
 
-vector<NetworkState> possible_states_after(const NetworkState& initialState)
+#define EVAL score = scoringFunc(simulate(initialState, createCmds, moveCmds)); \
+    if (score > bestScore) \
+        bestScore = score; \
+        bestCommand = my_command;
+
+string getBestMoveInNextTurn(const NetworkState& initialState, const double scoringFunc(const NetworkState&))
 {
     vector<CreateCommand> createCmds{};
     vector<MoveCommand> moveCmds{};
-    vector<NetworkState> states{};
 
     prepare_global_variables(initialState.dataPackets);
 
@@ -131,46 +140,50 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
     auto maxMessageId_bot = -1;
     const auto nPacketsMine = initialState.getNumberOfPlayerPackets(GameContext::ourId, maxMessageId_mine);
     const auto nPacketsBot = knowBotRouter ? initialState.getNumberOfPlayerPackets(GameContext::botRouterId, maxMessageId_bot) : MAX_PACKETS_IN_SYSTEM;
+    double score;
 
     // The system is guaranteed to move a router in an arbitrary direction
     FOR_MOVE(rSys, true)
         // Simulate the case when I pass
-        states.push_back(simulate(initialState, createCmds, moveCmds));     // both me and the BOT pass
+        string my_command = "PASS";
+        EVAL     // both me and the BOT pass
 
         FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
-            states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT creates a packet
+            EVAL // the BOT creates a packet
         END_COMMAND_C
 
         FOR_MOVE(rBot, canMoveRouterBot[rBot])
-            states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT moves a router
+            EVAL // the BOT moves a router
         END_COMMAND_M
 
         // Simulate the case when I create a packet
         FOR_CREATE(slotTakenMy, nPacketsMine, maxMessageId_mine, GameContext::ourId)
-            states.push_back(simulate(initialState, createCmds, moveCmds));     // the BOT passes
+            my_command = createCmds.back().to_exec_string();
+            EVAL     // the BOT passes
 
             FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
-                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT creates a packet too
+                EVAL // the BOT creates a packet too
             END_COMMAND_C
 
             FOR_MOVE(rBot, canMoveRouterBot[rBot])
-                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT moves a router
+                EVAL // the BOT moves a router
             END_COMMAND_M
         END_COMMAND_C
 
         // Simulate the case when I move a router
         FOR_MOVE(rMe, canMoveRouterMe[rMe])
-            states.push_back(simulate(initialState, createCmds, moveCmds));     // the BOT passes
+            my_command = moveCmds.back().to_exec_string();
+            EVAL     // the BOT passes
 
             FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
-                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT creates a packet
+                EVAL // the BOT creates a packet
             END_COMMAND_C
 
             FOR_MOVE(rBot, canMoveRouterBot[rBot])
-                states.push_back(simulate(initialState, createCmds, moveCmds)); // the BOT moves a router too
+                EVAL // the BOT moves a router too
             END_COMMAND_M
         END_COMMAND_M
     END_COMMAND_M
 
-    return states;
+    return bestCommand;
 }
