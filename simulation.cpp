@@ -1,9 +1,9 @@
 #include "simulation.h"
 #include <algorithm>
 #include <iostream>
+#include <cassert>
 #include <string>
 #include <vector>
-
 using namespace std;
 
 namespace {
@@ -262,7 +262,7 @@ NetworkState inititalState1() {
 bool test_1() {
     NetworkState st = inititalState1();
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::NEGATIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -275,7 +275,7 @@ bool test_1() {
 bool test_2() {
     NetworkState st = inititalState1();
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::POSITIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::POSITIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -287,8 +287,8 @@ bool test_2() {
 bool test_3() {
     NetworkState st = inititalState1();
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(6, VerticalDirection::POSITIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 6, VerticalDirection::POSITIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -300,8 +300,8 @@ bool test_3() {
 bool test_4() {
     NetworkState st = inititalState1();
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(5, VerticalDirection::POSITIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 5, VerticalDirection::POSITIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -317,7 +317,7 @@ bool test_5() {
     d.toRouter = d.fromRouter;
     d.dir = HorizontalDirection::LEFT;
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::NEGATIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -332,13 +332,13 @@ bool test_6() {
     d.toRouter = d.fromRouter;
     d.dir = HorizontalDirection::LEFT;
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(0, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(1, VerticalDirection::POSITIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
 
-    mvcs.emplace_back(12, VerticalDirection::POSITIVE);
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::POSITIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -353,14 +353,14 @@ bool test_7() {
     d.toRouter = d.fromRouter;
     d.dir = HorizontalDirection::LEFT;
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(0, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(1, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(13, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 13, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -376,15 +376,15 @@ bool test_8() {
     d.toRouter = d.fromRouter;
     d.dir = HorizontalDirection::LEFT;
     vector<MoveCommand> mvcs;
-    mvcs.emplace_back(4, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(0, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(1, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(13, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 13, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
     st = simulate(st, {}, mvcs);
     const auto& datas = st.dataPackets;
     if (datas.size() != 1) return false;
@@ -402,15 +402,15 @@ bool test_9() {
     st.nextDir[12] = HorizontalDirection::RIGHT;
     vector<MoveCommand> mvcs;
     vector<CreateCommand> crcs;
-    mvcs.emplace_back(4, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(0, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(3, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(1, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(13, VerticalDirection::POSITIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
-    mvcs.emplace_back(12, VerticalDirection::NEGATIVE);
-    crcs.emplace_back(12, 4, 12);
+    mvcs.push_back(MoveCommand{ 4, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 0, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 3, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 1, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 13, VerticalDirection::POSITIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    mvcs.push_back(MoveCommand{ 12, VerticalDirection::NEGATIVE });
+    crcs.push_back(CreateCommand{ 12, 4, 12 });
 
     st = simulate(st, crcs, mvcs);
     const auto& datas = st.dataPackets;
