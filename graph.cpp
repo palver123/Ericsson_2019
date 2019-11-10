@@ -8,7 +8,7 @@ array<bool, NSLOTS> slotTakenBot{};
 array<bool, NROUTERS> canMoveRouterMe{};
 array<bool, NROUTERS> canMoveRouterBot{};
 
-void prepate_global_variables(const vector<Data>& dataPackets)
+void prepare_global_variables(const vector<Data>& dataPackets)
 {
     for (const auto& data : dataPackets)
     {
@@ -52,7 +52,7 @@ vector<NetworkState> possible_states_after(const NetworkState& initialState)
     vector<MoveCommand> moveCmds{};
     vector<NetworkState> states{};
 
-    prepate_global_variables(initialState.dataPackets);
+    prepare_global_variables(initialState.dataPackets);
 
     array<VerticalDirection, 2> possibleDirsV = { VerticalDirection::NEGATIVE, VerticalDirection::POSITIVE };
     const auto knowBotRouter = GameContext::botRouterId < NROUTERS;
