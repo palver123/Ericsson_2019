@@ -47,7 +47,7 @@ namespace {
     void add_new_packets(NetworkState& state, const vector<CreateCommand>& commands)
     {
         for (const auto& c : commands) {
-            if (c.routerId == -1) {
+            if (c.routerId == NROUTERS) {
                 std::cerr << "Invalid router id in CreateCommand during simulation";
                 continue;
             }
