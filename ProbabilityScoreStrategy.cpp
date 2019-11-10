@@ -80,31 +80,8 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
                 return fmt::format("CREATE {} {}", slot, _requestCounter++);
     }
 
-    // Try to move
-
-    set<int> possibleRouters;
-    for (const auto& d : turnData.dataPackets)
-        if (d.fromRouter == GameContext::ourId)
-            possibleRouters.insert(d.currRouter);
-
-    vector<MoveCommand> cmds;
-
-    for (int i : possibleRouters)
-    {
-        cmds.push_back(MoveCommand{ i, VerticalDirection::NEGATIVE });
-        cmds.push_back(MoveCommand{ i, VerticalDirection::POSITIVE });
-    }
-
-    double best_score = -1e22;
-    MoveCommand best_cmd{0, VerticalDirection::NEGATIVE};
-    for(const auto& c : cmds) {
-        double score = Scores::distance_based_scoring(simulate(turnData, {}, { c }));
-        if (best_score < score) {
-            best_score = score;
-            best_cmd = c;
-        }
-    }
-    return best_cmd.to_exec_string();
+    // Do the best we can....
+    return getBestMoveInNextTurn(turnData, Scores::distance_based_scoring);
 }
 
 
@@ -127,7 +104,7 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
         bestScore = score; \
         bestCommand = my_command;
 
-string getBestMoveInNextTurn(const NetworkState& initialState, const double scoringFunc(const NetworkState&))
+string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initialState, double scoringFunc(const NetworkState&))
 {
     vector<CreateCommand> createCmds{};
     vector<MoveCommand> moveCmds{};
