@@ -1,8 +1,6 @@
 #include "turnData.h"
-#include "TestingStrategy.h"
 #include "Reader.h"
 #include "simulation.h"
-#include "graph.h"
 #include "ProbabilityScoreStrategy.h"
 #include <chrono>
 
@@ -29,7 +27,6 @@ int get_map_seed(const int argc, char *argv[])
 
 void run_tests() {
     run_sim_tests();
-    run_graph_tests();
 }
 
 int main(int argc, char *argv[])
@@ -51,7 +48,6 @@ int main(int argc, char *argv[])
     NetworkState turnData;
     GameContext context;
 
-    //TestingStrategy strategy;
     ProbabilityScoreStrategy strategy;
 
     while(reader.readData(turnData, context))
@@ -59,8 +55,7 @@ int main(int argc, char *argv[])
 
 #ifdef TIME_LOGGING
         std::cerr << "Data received" << std::endl;
-        // TODO logika jobb mint a semmitteves
-        long long start = std::chrono::duration_cast<std::chrono::milliseconds>(
+        const auto start = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
             ).count();
 #endif
@@ -71,13 +66,12 @@ int main(int argc, char *argv[])
         cerr << "Send " << command << endl;
 
 #ifdef TIME_LOGGING
-        long long end = std::chrono::duration_cast<std::chrono::milliseconds>(
+        const auto end = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
             ).count();
         std::cerr << end - start << " ms" << std::endl;
 #endif
 
-       
         // standard out-ra meg mehet ki a megoldas! Mas ne irodjon ide ki ;)
         cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << GameContext::ourId << " " << command << endl;
     }

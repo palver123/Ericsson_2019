@@ -132,7 +132,6 @@
     <ClInclude Include="commands.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="directions.h" />
-    <ClInclude Include="graph.h" />
     <ClInclude Include="ProbabilityScoreStrategy.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Scores.h" />
@@ -142,7 +141,6 @@
     <ClInclude Include="turnData.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="graph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ProbabilityScoreStrategy.cpp" />
     <ClCompile Include="Reader.cpp" />
