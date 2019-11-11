@@ -8,8 +8,6 @@ using namespace std;
 array<bool, NSLOTS> slotTakenBot{};
 array<bool, NROUTERS> canMoveRouterMe{};
 array<bool, NROUTERS> canMoveRouterBot{};
-double bestScore;
-string bestCommand;
 
 void prepare_global_variables(const vector<Data>& dataPackets)
 {
@@ -32,9 +30,6 @@ void prepare_global_variables(const vector<Data>& dataPackets)
                 canMoveRouterBot[data.currRouter] = true;
         }
     }
-
-    bestScore = std::numeric_limits<double>::lowest();
-    bestCommand = "PASS";
 }
 
 
@@ -98,9 +93,9 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
 #define END_COMMAND_C } createCmds.pop_back(); }
 
 #define EVAL score = scoringFunc(simulate(initialState, createCmds, moveCmds)); \
-    if (score > bestScore) \
-        bestScore = score; \
-        bestCommand = my_command;
+    sumScores += score; \
+    ++nScores;
+
 
 string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initialState, double scoringFunc(const NetworkState&))
 {
@@ -116,9 +111,12 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
     double score;
 
     // The system is guaranteed to move a router in an arbitrary direction
+
+    // Simulate the case when I pass
+    string bestCommand = "PASS";
+    double sumScores = 0;
+    unsigned nScores = 0;
     FOR_MOVE(rSys, true)
-        // Simulate the case when I pass
-        string my_command = "PASS";
         EVAL     // both me and the BOT pass
 
         FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
@@ -128,10 +126,15 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
         FOR_MOVE(rBot, canMoveRouterBot[rBot])
             EVAL // the BOT moves a router
         END_COMMAND_M
+    END_COMMAND_M
+    auto bestScore = sumScores / nScores; // estimated value of the scores of the possible outcomes of me PASSING
 
-        // Simulate the case when I move a router
-        FOR_MOVE(rMe, canMoveRouterMe[rMe])
-            my_command = moveCmds.back().to_exec_string();
+    // Simulate the case when I move a router
+    FOR_MOVE(rMe, canMoveRouterMe[rMe])
+        auto move_command_str = moveCmds.back().to_exec_string();
+        sumScores = 0;
+        nScores = 0;
+        FOR_MOVE(rSys, true)
             EVAL     // the BOT passes
 
             FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
@@ -142,6 +145,12 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
                 EVAL // the BOT moves a router too
             END_COMMAND_M
         END_COMMAND_M
+        const auto accumulateCommandScore = sumScores / nScores; // estimated value of the scores of the possible outcomes of me MOVING
+        if (accumulateCommandScore > bestScore)
+        {
+            bestScore = accumulateCommandScore;
+            bestCommand = move(move_command_str);
+        }
     END_COMMAND_M
 
     return bestCommand;
