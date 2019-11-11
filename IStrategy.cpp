@@ -25,6 +25,6 @@ ll IStrategy::getRandomLL(const ll from, const ll to_exclusive)
 void IStrategy::stepPre(const NetworkState& turnData, const GameContext& ctx)
 {
     if (GameContext::ourId == NROUTERS)
-        GameContext::ourId = ctx.commandPrefix.routerId;
+        GameContext::ourId = static_cast<int>(ctx.commandPrefix.routerId);
     actualData = &turnData;
 }
