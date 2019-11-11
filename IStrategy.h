@@ -7,7 +7,7 @@
 class IStrategy
 {
 public:
-    virtual std::string step(const NetworkState&, const GameContext&);
+    virtual std::string step(NetworkState&, const GameContext&);
     virtual ~IStrategy() = default;
 
 protected:

@@ -1,6 +1,6 @@
 #include "TestingStrategy.h"
 
-std::string TestingStrategy::step(const NetworkState &turnData, const GameContext& ctx)
+std::string TestingStrategy::step(NetworkState &turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
     if (ctx.hasReceivedEmptyMessage())

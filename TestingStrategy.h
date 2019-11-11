@@ -10,5 +10,5 @@ public:
     TestingStrategy() = default;
 
     // IStrategy interface
-    std::string step(const NetworkState&, const GameContext&) override;
+    std::string step(NetworkState&, const GameContext&) override;
 };

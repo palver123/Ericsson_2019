@@ -8,7 +8,7 @@ class ProbabilityScoreStrategy : public IStrategy
     static std::string getBestMoveInNextTurn(const NetworkState&, double scoringFunc(const NetworkState&));
 
 public:
-    virtual std::string step(const NetworkState&, const GameContext&) override;
+    virtual std::string step(NetworkState&, const GameContext&) override;
 
 };
 

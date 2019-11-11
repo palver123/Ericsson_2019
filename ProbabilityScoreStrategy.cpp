@@ -33,10 +33,10 @@ void prepare_global_variables(const vector<Data>& dataPackets)
 }
 
 
-string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameContext& ctx)
+string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
-
+    turnData.nextDir[GameContext::ourId] = (_requestCounter % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
     if (ctx.hasReceivedEmptyMessage())
     {
         // Guess the solution
@@ -68,9 +68,30 @@ string ProbabilityScoreStrategy::step(const NetworkState& turnData, const GameCo
                 slotTaken[data.currStoreId] = true;
         }
 
+        vector<CreateCommand> ccmds;
+
         for (auto slot = 0; slot < NSLOTS; slot++)
             if (!slotTaken[slot] && turnData.routerBits[GameContext::ourId][slot])
-                return fmt::format("CREATE {} {}", slot, _requestCounter++);
+                ccmds.push_back({ GameContext::ourId, slot, _requestCounter });
+
+        if (ccmds.size())
+        {
+            CreateCommand bcmd;
+            double best = -1e22;
+            for (auto& c : ccmds) {
+                double score = Scores::distance_based_scoring(simulate(turnData, { c }, {}));
+                if (best < score) {
+                    bcmd = c;
+                    best = score;
+                }
+            }
+            ++_requestCounter;
+            return bcmd.to_exec_string();
+        }
+        else
+        {
+            std::cerr << "!!! Failed creation !!!" << std::endl;
+        }
     }
 
     // Do the best we can....
