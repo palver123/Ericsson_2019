@@ -14,16 +14,18 @@ string bestCommand;
 
 void prepare_global_variables(const vector<Data>& dataPackets)
 {
+    fill(slotTakenMy.begin(), slotTakenMy.end(), false);
+    fill(canMoveRouterMe.begin(), canMoveRouterMe.end(), false);
     for (const auto& data : dataPackets)
     {
         if (data.currRouter == GameContext::ourId)
-        {
             slotTakenMy[data.currStoreId] = true;
-        }
         if (data.fromRouter == GameContext::ourId)
             canMoveRouterMe[data.currRouter] = true;
     }
 
+    fill(slotTakenBot.begin(), slotTakenBot.end(), false);
+    fill(canMoveRouterBot.begin(), canMoveRouterBot.end(), false);
     if (GameContext::botRouterId < NROUTERS)
     {
         for (const auto& data : dataPackets)
@@ -35,7 +37,7 @@ void prepare_global_variables(const vector<Data>& dataPackets)
         }
     }
 
-    bestScore = std::numeric_limits<double>::min();
+    bestScore = std::numeric_limits<double>::lowest();
     bestCommand = "PASS";
 }
 
