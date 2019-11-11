@@ -5,7 +5,6 @@
 
 using namespace std;
 
-array<bool, NSLOTS> slotTakenMy{};
 array<bool, NSLOTS> slotTakenBot{};
 array<bool, NROUTERS> canMoveRouterMe{};
 array<bool, NROUTERS> canMoveRouterBot{};
@@ -14,12 +13,9 @@ string bestCommand;
 
 void prepare_global_variables(const vector<Data>& dataPackets)
 {
-    fill(slotTakenMy.begin(), slotTakenMy.end(), false);
     fill(canMoveRouterMe.begin(), canMoveRouterMe.end(), false);
     for (const auto& data : dataPackets)
     {
-        if (data.currRouter == GameContext::ourId)
-            slotTakenMy[data.currStoreId] = true;
         if (data.fromRouter == GameContext::ourId)
             canMoveRouterMe[data.currRouter] = true;
     }
@@ -115,9 +111,7 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
 
     array<VerticalDirection, 2> possibleDirsV = { VerticalDirection::NEGATIVE, VerticalDirection::POSITIVE };
     const auto knowBotRouter = GameContext::botRouterId < NROUTERS;
-    auto maxMessageId_mine = -1;
     auto maxMessageId_bot = -1;
-    const auto nPacketsMine = initialState.getNumberOfPlayerPackets(GameContext::ourId, maxMessageId_mine);
     const auto nPacketsBot = knowBotRouter ? initialState.getNumberOfPlayerPackets(GameContext::botRouterId, maxMessageId_bot) : MAX_PACKETS_IN_SYSTEM;
     double score;
 
@@ -134,20 +128,6 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
         FOR_MOVE(rBot, canMoveRouterBot[rBot])
             EVAL // the BOT moves a router
         END_COMMAND_M
-
-        // Simulate the case when I create a packet
-        FOR_CREATE(slotTakenMy, nPacketsMine, maxMessageId_mine, GameContext::ourId)
-            my_command = createCmds.back().to_exec_string();
-            EVAL     // the BOT passes
-
-            FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
-                EVAL // the BOT creates a packet too
-            END_COMMAND_C
-
-            FOR_MOVE(rBot, canMoveRouterBot[rBot])
-                EVAL // the BOT moves a router
-            END_COMMAND_M
-        END_COMMAND_C
 
         // Simulate the case when I move a router
         FOR_MOVE(rMe, canMoveRouterMe[rMe])
