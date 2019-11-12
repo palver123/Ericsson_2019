@@ -36,7 +36,7 @@ double Scores::distance_based_scoring(const NetworkState& state)
 
 double Scores::distance_based_scoring_change_handling(const NetworkState& state)
 {
-    double creation_bonus = 2;
+    double creation_bonus = 0; // Dont change, possitive 2 value causes minimum to drop to 424 from 590 :(
     const auto score_request_dist = [](double d) {
         return (7 - d) * 1.0;
     };
