@@ -15,6 +15,11 @@ int Data::distance_from_target() const
         return (toRouter - currRouter + NROUTERS) % NROUTERS;
 }
 
+int Data::will_disappear() const
+{
+    return fromRouter == toRouter && currRouter == toRouter;
+}
+
 int GameContext::botRouterId = NROUTERS;
 int GameContext::ourId = NROUTERS;
 
@@ -45,11 +50,11 @@ void GameContext::OnMessageReceived(const MessagePiece& msg)
 
 }
 
-int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer) const
+int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer, bool skip_arrived) const
 {
     auto res = 0;
     for (const auto& packet : dataPackets) {
-        if (packet.fromRouter == routerOfPlayer)
+        if (packet.fromRouter == routerOfPlayer && (!skip_arrived || !packet.will_disappear()))
             ++res;
     }
     return res;

@@ -19,6 +19,7 @@ struct Data {
     // Is the content of the data package a request or an answer to a request
     bool is_request() const;
     int distance_from_target() const;
+    int will_disappear() const;
 };
 
 struct MessagePiece {
@@ -51,7 +52,7 @@ struct NetworkState
     SimuInfo simuInfo;
     std::array<HorizontalDirection, NROUTERS> nextDir; // TODO maintain
 
-    int getNumberOfPlayerPackets(int routerOfPlayer) const;
+    int getNumberOfPlayerPackets(int routerOfPlayer, bool skip_arrived = false) const;
     int getNumberOfPlayerPackets(int routerOfPlayer, int& maxMessageId) const;
     void clear();
 };

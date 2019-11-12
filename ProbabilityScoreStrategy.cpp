@@ -79,7 +79,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
             CreateCommand bcmd;
             double best = -1e22;
             for (auto& c : ccmds) {
-                double score = Scores::distance_based_scoring(simulate(turnData, { c }, {}));
+                double score = Scores::future_seeing(simulate(turnData, { c }, {}));
                 if (best < score) {
                     bcmd = c;
                     best = score;
@@ -95,7 +95,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     }
 
     // Do the best we can....
-    return getBestMoveInNextTurn(turnData, Scores::distance_based_scoring);
+    return getBestMoveInNextTurn(turnData, Scores::future_seeing);
 }
 
 
