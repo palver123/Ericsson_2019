@@ -17,6 +17,8 @@ double Scores::distance_based_scoring(const NetworkState& state)
     res += arrived_request(state.simuInfo.additionalArrivedReq);
     res += arrived_resp(state.simuInfo.additionalArrivedResp);
     for(const auto& d : state.dataPackets) {
+        if (d.fromRouter != GameContext::ourId)
+            continue;
         if (d.is_request()) {
             res += score_request_dist(d.distance_from_target());
         }
