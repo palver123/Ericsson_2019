@@ -149,10 +149,10 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
         FOR_CREATE(slotCannotTakeNewPacketBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
             EVAL // the BOT creates a packet
         END_COMMAND_C
-
+        else{
         FOR_MOVE(rBot, canMoveRouterBot[rBot])
             EVAL // the BOT moves a router
-        END_COMMAND_M
+        END_COMMAND_M }
     END_COMMAND_M
     auto bestScore = sumScores / nScores; // estimated value of the scores of the possible outcomes of me PASSING
 
@@ -168,9 +168,10 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
                 EVAL // the BOT creates a packet
             END_COMMAND_C
 
+        else{
             FOR_MOVE(rBot, canMoveRouterBot[rBot])
                 EVAL // the BOT moves a router too
-            END_COMMAND_M
+            END_COMMAND_M}
         END_COMMAND_M
         const auto accumulateCommandScore = sumScores / nScores; // estimated value of the scores of the possible outcomes of me MOVING
         if (accumulateCommandScore > bestScore)
