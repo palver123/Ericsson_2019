@@ -29,14 +29,20 @@ with open(r'nightly_stats.txt') as inp:
         rr = Res(l)
         if rr.pc_mul not in byParam:
             byParam[rr.pc_mul] = []
+        if rr.score == -1: # I think these are network errors
+            continue
         byParam[rr.pc_mul].append(rr)
 
 print(f"{'-'*30} WHOLE AVG {'-'*30}")
 for p, pset in byParam.items():
     avg = 0
+    mn = 1000
+    mx = 0
     for r in pset:
         avg = avg + r.score
-    print(f"P={p} {avg/len(pset)} (from {len(pset)})")
+        mn = min(mn, r.score)
+        mx = max(mx, r.score)
+    print(f"P={p} {avg/len(pset)} (from {len(pset)}) min: {mn} max: {mx}")
 
 print(f"{'-'*30} BY DIST AVG {'-'*30}")
 for p, pset in byParam.items():
