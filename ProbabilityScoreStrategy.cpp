@@ -5,27 +5,28 @@
 
 using namespace std;
 
-array<bool, NSLOTS> slotTakenBot{};
+array<bool, NSLOTS> slotCannotTakeNewPacketBot{};
 array<bool, NROUTERS> canMoveRouterMe{};
 array<bool, NROUTERS> canMoveRouterBot{};
 
-void prepare_global_variables(const vector<Data>& dataPackets)
+void prepare_global_variables(const NetworkState& state)
 {
     fill(canMoveRouterMe.begin(), canMoveRouterMe.end(), false);
-    for (const auto& data : dataPackets)
+    for (const auto& data : state.dataPackets)
     {
         if (data.fromRouter == GameContext::ourId)
             canMoveRouterMe[data.currRouter] = true;
     }
 
-    fill(slotTakenBot.begin(), slotTakenBot.end(), false);
+    for (auto slot = 0; slot < NSLOTS; ++slot)
+        slotCannotTakeNewPacketBot[slot] = !state.routerBits[GameContext::botRouterId][slot]; // Closed
     fill(canMoveRouterBot.begin(), canMoveRouterBot.end(), false);
     if (GameContext::botRouterId < NROUTERS)
     {
-        for (const auto& data : dataPackets)
+        for (const auto& data : state.dataPackets)
         {
             if (data.currRouter == GameContext::botRouterId)
-                slotTakenBot[data.currStoreId] = true;
+                slotCannotTakeNewPacketBot[data.currStoreId] = true; // Or occupied by other data packet
             if (data.fromRouter == GameContext::botRouterId)
                 canMoveRouterBot[data.currRouter] = true;
         }
@@ -128,7 +129,7 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
     vector<CreateCommand> createCmds{};
     vector<MoveCommand> moveCmds{};
 
-    prepare_global_variables(initialState.dataPackets);
+    prepare_global_variables(initialState);
 
     array<VerticalDirection, 2> possibleDirsV = { VerticalDirection::NEGATIVE, VerticalDirection::POSITIVE };
     const auto knowBotRouter = GameContext::botRouterId < NROUTERS;
@@ -145,7 +146,7 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
     FOR_MOVE(rSys, true)
         EVAL     // both me and the BOT pass
 
-        FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+        FOR_CREATE(slotCannotTakeNewPacketBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
             EVAL // the BOT creates a packet
         END_COMMAND_C
 
@@ -163,7 +164,7 @@ string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initi
         FOR_MOVE(rSys, true)
             EVAL     // the BOT passes
 
-            FOR_CREATE(slotTakenBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
+            FOR_CREATE(slotCannotTakeNewPacketBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
                 EVAL // the BOT creates a packet
             END_COMMAND_C
 
