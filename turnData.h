@@ -55,6 +55,7 @@ struct NetworkState
     int getNumberOfPlayerPackets(int routerOfPlayer, bool skip_arrived = false) const;
     int getNumberOfPlayerPackets(int routerOfPlayer, int& maxMessageId) const;
     void clear();
+    std::string routers_dump();
 };
 
 // Context of the whole game from the first tick to the last (kind of a 'global state')

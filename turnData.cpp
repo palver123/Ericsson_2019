@@ -78,3 +78,14 @@ void NetworkState::clear()
 {
     dataPackets.clear();
 }
+
+std::string NetworkState::routers_dump()
+{
+    std::string res;
+    for(int i = 0; i < NROUTERS; ++i)
+        for(int j = 0; j < NSLOTS; ++j)
+        {
+            res += routerBits[i][j] ? "1" : "0";
+        }
+    return res;
+}

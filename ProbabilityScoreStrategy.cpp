@@ -37,6 +37,11 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
 {
     stepPre(turnData,ctx);
     turnData.nextDir[GameContext::ourId] = (_requestCounter % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
+    static bool info_dumped = false;
+    if (!info_dumped && GameContext::botRouterId != NROUTERS) {
+        std::cerr << fmt::format("!!!!INFO {} {} {}", GameContext::ourId, GameContext::botRouterId, turnData.routers_dump()) << std::endl;
+        info_dumped = true;
+    }
     if (ctx.hasReceivedEmptyMessage())
     {
         // Guess the solution
