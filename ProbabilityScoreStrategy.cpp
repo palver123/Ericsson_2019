@@ -5,9 +5,11 @@
 
 using namespace std;
 
-array<bool, NSLOTS> slotCannotTakeNewPacketBot{};
-array<bool, NROUTERS> canMoveRouterMe{};
-array<bool, NROUTERS> canMoveRouterBot{};
+namespace {
+    array<bool, NSLOTS> slotCannotTakeNewPacketBot{};
+    array<bool, NROUTERS> canMoveRouterMe{};
+    array<bool, NROUTERS> canMoveRouterBot{};
+}
 
 void prepare_global_variables(const NetworkState& state)
 {
@@ -82,7 +84,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
 
         if (ccmds.size())
         {
-            CreateCommand bcmd;
+            CreateCommand bcmd{};
             double best = -1e22;
             for (auto& c : ccmds) {
                 double score = Scores::future_seeing(simulate(turnData, { c }, {}));

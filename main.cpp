@@ -9,7 +9,7 @@ using namespace std;
 
 int get_map_seed(const int argc, char *argv[])
 {
-    auto seed = 852366;
+    auto seed = 652282;
     if (argc > 1)
     {
         const string arg{ argv[1] };
