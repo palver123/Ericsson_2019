@@ -64,7 +64,7 @@ struct GameContext
     CommandDescription commandPrefix;
 
     // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
-    int _lowestEmptyAnswer = -1;
+    static int _lowestEmptyAnswer;
 
     // ALL the received answers to our requests so far
     std::map<int, MessagePiece> _allReceivedPieces;
@@ -73,7 +73,7 @@ struct GameContext
     static int botRouterId, ourId;
 
     bool have_all_message_pieces() const;
-    bool hasReceivedEmptyMessage() const;
+    static bool hasReceivedEmptyMessage();
     void OnMessageReceived(const MessagePiece&);
 };
 

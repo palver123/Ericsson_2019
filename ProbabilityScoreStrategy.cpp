@@ -43,7 +43,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
         std::cerr << fmt::format("!!!!INFO {} {} {}", GameContext::ourId, GameContext::botRouterId, turnData.routers_dump()) << std::endl;
         info_dumped = true;
     }
-    if (ctx.hasReceivedEmptyMessage())
+    if (GameContext::hasReceivedEmptyMessage())
     {
         // Guess the solution
         if (ctx.have_all_message_pieces())

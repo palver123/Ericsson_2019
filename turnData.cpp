@@ -23,6 +23,8 @@ int Data::will_disappear() const
 int GameContext::botRouterId = NROUTERS;
 int GameContext::ourId = NROUTERS;
 
+int GameContext::_lowestEmptyAnswer = -1;
+
 bool GameContext::have_all_message_pieces() const
 {
     auto highestReceivedIdx = -1;
@@ -36,7 +38,7 @@ bool GameContext::have_all_message_pieces() const
     return highestReceivedIdx == _lowestEmptyAnswer - 1;
 }
 
-bool GameContext::hasReceivedEmptyMessage() const
+bool GameContext::hasReceivedEmptyMessage()
 {
     return _lowestEmptyAnswer >= 0;
 }

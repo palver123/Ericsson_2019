@@ -3,7 +3,7 @@
 std::string TestingStrategy::step(NetworkState &turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
-    if (ctx.hasReceivedEmptyMessage())
+    if (GameContext::hasReceivedEmptyMessage())
     {
         // Guess the solution
         if (ctx.have_all_message_pieces())

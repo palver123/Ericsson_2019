@@ -1,5 +1,6 @@
 #include "Scores.h"
 #include "simulation.h"
+#include <iostream>
 #include <array>
 #include <set>
 
@@ -52,7 +53,7 @@ double Scores::distance_based_scoring_change_handling(const NetworkState& state)
     res += arrived_request(state.simuInfo.additionalArrivedReq);
     res += arrived_resp(state.simuInfo.additionalArrivedResp);
     for (const auto& d : state.dataPackets) {
-        if (d.fromRouter != GameContext::ourId)
+        if (d.fromRouter != GameContext::ourId || (GameContext::hasReceivedEmptyMessage() && d.messageId >= GameContext::_lowestEmptyAnswer))
             continue;
         res += creation_bonus;
         if (d.is_request()) {
@@ -67,10 +68,10 @@ double Scores::distance_based_scoring_change_handling(const NetworkState& state)
 
 double Scores::future_seeing(const NetworkState& state)
 {
-    constexpr double bc_mul = 30.0;
+    double bc_mul = /*GameContext::hasReceivedEmptyMessage() ? 1.0 :*/ 30.0;
     double basescore = Scores::distance_based_scoring_change_handling(state);
-    double best_score = 0;
-    if (state.getNumberOfPlayerPackets(GameContext::ourId, true) < MAX_PACKETS_IN_SYSTEM) {
+    double best_score = max(.0, Scores::distance_based_scoring_change_handling(simulate(state, {}, {})));
+    if (state.getNumberOfPlayerPackets(GameContext::ourId, true) < MAX_PACKETS_IN_SYSTEM /*&& !GameContext::hasReceivedEmptyMessage()*/) {
         // Try to ask for a new packet
         array<bool, NSLOTS> slotTaken{};
         for (const auto& data : state.dataPackets)
