@@ -101,8 +101,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
             std::cerr << "!!! Failed creation !!!" << std::endl;
         }
     }
-
-    // Do the best we can....
+    
     return getBestMoveInNextTurn(turnData, Scores::future_seeing);
 }
 

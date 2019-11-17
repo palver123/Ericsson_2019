@@ -133,7 +133,6 @@
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Scores.h" />
     <ClInclude Include="simulation.h" />
-    <ClInclude Include="TestingStrategy.h" />
     <ClInclude Include="turnData.h" />
   </ItemGroup>
   <ItemGroup>
@@ -143,7 +142,6 @@
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="Scores.cpp" />
     <ClCompile Include="simulation.cpp" />
-    <ClCompile Include="TestingStrategy.cpp" />
     <ClCompile Include="turnData.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
