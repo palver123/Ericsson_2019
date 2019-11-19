@@ -3,7 +3,7 @@
 #include <iostream>
 #include <array>
 #include <set>
-
+#include "Players.h"
 using namespace std;
 
 double Scores::distance_based_scoring_change_handling(const NetworkState& state, int playerId)
@@ -39,41 +39,11 @@ double Scores::future_seeing(const NetworkState& state, int playerId)
 {
     double bc_mul = /*GameContext::hasReceivedEmptyMessage() ? 1.0 :*/ 30.0;
     double basescore = Scores::distance_based_scoring_change_handling(state, playerId);
-    double best_score = max(.0, Scores::distance_based_scoring_change_handling(simulate(state, {}, playerId),playerId));
-    if (state.getNumberOfPlayerPackets(playerId, true) < MAX_PACKETS_IN_SYSTEM /*&& !GameContext::hasReceivedEmptyMessage()*/) {
-        // Try to ask for a new packet
-        array<bool, NSLOTS> slotTaken{};
-        for (const auto& data : state.dataPackets)
-        {
-            if (data.currRouter == playerId && !data.will_disappear())
-                slotTaken[data.currStoreId] = true;
-        }
+    double best_score = 0;
 
-        vector<Command> ccmds;
-        for (auto slot = 0; slot < NSLOTS; slot++)
-            if (!slotTaken[slot] && state.routerBits[playerId][slot])
-                ccmds.push_back(Command::Create(playerId, slot, 33 ));
-        for (const auto& c : ccmds) {
-            best_score = max(best_score, Scores::distance_based_scoring_change_handling(simulate(state, { c }, playerId),playerId));
-        }
-    }
-
-
-    set<int> possibleRouters;
-    for (const auto& d : state.dataPackets)
-        if (d.fromRouter == playerId)
-            possibleRouters.insert(d.currRouter);
-
-    vector<Command> cmds;
-
-    for (int i : possibleRouters)
-    {
-        cmds.push_back(Command::Move(i, VerticalDirection::NEGATIVE ));
-        cmds.push_back(Command::Move(i, VerticalDirection::POSITIVE ));
-    }
+    vector<Command> cmds = Player::getPossibleMoves(state, playerId, true, true, 666);
     for (const auto& c : cmds) {
-        double score = Scores::distance_based_scoring_change_handling(simulate(state, { c }, playerId), playerId);
-        best_score = max(best_score, score);
+        best_score = max(best_score, Scores::distance_based_scoring_change_handling(simulate(state, { c }, playerId), playerId));
     }
     return basescore + best_score * bc_mul;
 }

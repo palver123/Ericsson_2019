@@ -1,5 +1,9 @@
 #include "turnData.h"
 
+
+#include <algorithm>
+#include <set>
+#include <iterator>
 using namespace std;
 
 bool Data::is_request() const
@@ -20,9 +24,16 @@ int Data::will_disappear() const
     return fromRouter == toRouter && currRouter == toRouter;
 }
 
-int GameContext::botRouterId = NROUTERS;
-
 int GameContext::_lowestEmptyAnswer = -1;
+
+bool GameContext::receivedEmptyPacket(int playerId)
+{
+    return _lowestEmptyAnswer != -1 
+        && playerPackets[playerId].received.size()
+        && *playerPackets[playerId].received.rbegin() >= _lowestEmptyAnswer;
+}
+
+std::map<int, GameContext::PlayerPackets> GameContext::playerPackets;
 
 bool GameContext::have_all_message_pieces() const
 {
@@ -49,6 +60,24 @@ void GameContext::OnMessageReceived(const MessagePiece& msg)
     if (msg.message.empty() && (!hasReceivedEmptyMessage() || msg.index < _lowestEmptyAnswer))
         _lowestEmptyAnswer = msg.index;
 
+}
+
+void GameContext::refreshPlayerPackets(const NetworkState& state)
+{
+    std::map<int, std::set<int> > active;
+    for(const auto& p: state.dataPackets) {
+        auto player = playerPackets[p.fromRouter];
+        active[p.fromRouter].insert(p.messageId);
+    }
+    for(auto& it : playerPackets) {
+        auto& s1 = it.second.active;
+        auto& s2 = active[it.first];
+        std::set<int> result;
+        std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(),
+            std::inserter(result, result.end()));
+        it.second.received.insert(result.begin(), result.end());
+        s1 = s2;
+    }
 }
 
 int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer, bool skip_arrived) const

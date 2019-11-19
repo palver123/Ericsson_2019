@@ -6,6 +6,7 @@
 #include <map>
 #include "constants.h"
 #include "directions.h"
+#include <set>
 
 struct Data {
     int currRouter;
@@ -40,7 +41,7 @@ struct SimuInfo
 {
     int additionalArrivedReq = 0;
     int additionalArrivedResp = 0;
-    std::array<std::array<bool, NSLOTS>, NROUTERS> routerBitsOccupied; // TODO fill
+    std::array<std::array<bool, NSLOTS>, NROUTERS> routerBitsOccupied;
 };
 
 // The state of the network consisting of 10 routers organized in a Daisy Chain.
@@ -69,12 +70,19 @@ struct GameContext
     // ALL the received answers to our requests so far
     std::map<int, MessagePiece> _allReceivedPieces;
 
-    // The ID of the BOT's router. By default it contains an invalid ID (which will be overwritten when the BOT creates its first data packet)
-    static int botRouterId;
+    struct PlayerPackets {
+        std::set<int> received;
+        std::set<int> active;
+    };
+
+    static bool receivedEmptyPacket(int playerId);
+
+    static std::map<int, PlayerPackets> playerPackets;
 
     bool have_all_message_pieces() const;
     static bool hasReceivedEmptyMessage();
     void OnMessageReceived(const MessagePiece&);
+    static void refreshPlayerPackets(const NetworkState& state);
 };
 
 namespace Router {

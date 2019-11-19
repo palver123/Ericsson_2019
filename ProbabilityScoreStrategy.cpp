@@ -14,12 +14,10 @@ namespace {
 string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
-    turnData.nextDir[ourId] = (_requestCounter % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
-    static bool info_dumped = false;
-    if (!info_dumped && GameContext::botRouterId != NROUTERS) {
-        std::cerr << fmt::format("!!!!INFO {} {} {}", ourId, GameContext::botRouterId, turnData.routers_dump()) << std::endl;
-        info_dumped = true;
-    }
+    for (const auto& p : GameContext::playerPackets)
+        turnData.nextDir[p.first] = ((p.second.active.size() + p.second.received.size()) % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
+
+
     if (GameContext::hasReceivedEmptyMessage())
     {
         // Guess the solution
@@ -76,13 +74,18 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
             std::cerr << "!!! Failed creation !!!" << std::endl;
         }
     }
-    return command_execute(getBestMove(turnData, {}, Scores::future_seeing));
+    vector<std::shared_ptr<Player>> players;
+    players.emplace_back(new RandomNetworkMovements{});
+    for(const auto& p : GameContext::playerPackets)
+        if (p.first != ourId)
+            players.emplace_back(new RandomPlayer(p.first));
+    return command_execute(getBestMove(turnData, players, Scores::future_seeing));
 }
 
 template<typename T>
 void next_idx(const vector<vector<T> >& vec2d, vector<int>& idx) {
     assert(vec2d.size() == idx.size());
-    for(int i = static_cast<int>(idx.size()) -1; i>0; --i) {
+    for(int i = static_cast<int>(idx.size()) -1; i>=0; --i) {
         ++idx[i];
         if (idx[i] < vec2d[i].size())
             return;

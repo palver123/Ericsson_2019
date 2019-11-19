@@ -8,7 +8,7 @@ std::vector<Command> Player::getPossibleMoves(const NetworkState& turnData, int 
     std::vector<Command> cmds;
     if (pass)
         cmds.push_back(Command::Pass());
-    if (create_req != -1) {
+    if (create_req != -1 && turnData.getNumberOfPlayerPackets(ourId) < MAX_PACKETS_IN_SYSTEM && !GameContext::receivedEmptyPacket(ourId)) {
         // Try to ask for a new packet
         array<bool, NSLOTS> slotTaken{};
         for (const auto& data : turnData.dataPackets)

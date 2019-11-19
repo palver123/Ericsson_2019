@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
             std::chrono::system_clock::now().time_since_epoch()
             ).count();
 #endif
+        GameContext::refreshPlayerPackets(turnData);
         auto command = strategy.step(turnData, context);
         
         // Ha szeretnetek debug uzenetet kuldeni, akkor megtehetitek.

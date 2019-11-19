@@ -32,6 +32,23 @@ public:
             res.push_back({ 0.5 / NROUTERS ,Command::Move(r, VerticalDirection::NEGATIVE) });
             res.push_back({ 0.5 / NROUTERS ,Command::Move(r, VerticalDirection::POSITIVE) });
         }
+        return res;
     }
 
+};
+
+class RandomPlayer : public Player {
+public:
+    RandomPlayer(int id) :Player(id) {
+
+    }
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
+    {
+        auto cmds = getPossibleMoves(turnData, id, true, true, 666);
+        std::vector<std::pair<double, Command> > res;
+        for(const auto& c : cmds) {
+            res.push_back({ 1.0 / cmds.size(), c });
+        }
+        return res;
+    }
 };

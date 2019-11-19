@@ -79,8 +79,6 @@ results = []
 count = 100
 
 score_pattern = re.compile('END [(]latest message[)]: SCORE (\\d+)')
-desc_patten = re.compile('!!!!INFO (\\d+) (\\d+) (.*)$')
-#print(seeds[60])
 
 exes = ['x64/Release/Wololo2.exe']
 results = []
@@ -94,22 +92,16 @@ for i in range(0, count):
                            '--host', 'ecovpn.dyndns.org', '--port', '11222', '-m', str(seeds[i])
                            ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         res = p1.communicate()
-        print(res[0])
         res = res[0].decode()
         rr = -1
         desc = None
         for l in res.splitlines():
           if score_pattern.match(l):
               rr = int(score_pattern.match(l).group(1))
-          if desc_patten.match(l):
-             x = desc_patten.match(l);
-             desc = (int(x.group(1)),int(x.group(2)),x.group(3))
         if rr != -1:
             results.append(rr)
         print(rr)
         p = prefix + "_" + str(jj)
-        with open(p,'w') as out:
-            out.write(f'{seeds[i]} {e} {desc[0]} {desc[1]} {desc[2]} {rr}\n')
 
 
 print(f"Count {len(results)}/{count}, min {min(results)}, max {max(results)}, avg {numpy.mean(results)}")
