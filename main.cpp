@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 #endif
 
         // standard out-ra meg mehet ki a megoldas! Mas ne irodjon ide ki ;)
-        cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << GameContext::ourId << " " << command << endl;
+        cout << context.commandPrefix.gameId << " " << context.commandPrefix.tickId << " " << static_cast<int>(context.commandPrefix.routerId) << " " << command << endl;
     }
 
     cerr << "END (latest message): " << reader.previous << endl;

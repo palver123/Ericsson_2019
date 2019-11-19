@@ -3,6 +3,7 @@
 #include "turnData.h"
 #include "basics.h"
 #include <string>
+#include "commands.h"
 
 class IStrategy
 {
@@ -14,6 +15,10 @@ protected:
     static int getRandom(int from, int to_exclusive);
     static ll getRandomLL(ll from, ll to_exclusive);
 
+    int ourId = NROUTERS;
     const NetworkState* actualData = nullptr;
     virtual void stepPre(const NetworkState& turnData, const GameContext& ctx);
+    virtual std::vector<Command> getPossibleMoves(const NetworkState& turnData, bool pass, bool create, bool move) const;
+    int _requestCounter = 0;
+    std::string command_execute(const Command& c);
 };

@@ -21,7 +21,6 @@ int Data::will_disappear() const
 }
 
 int GameContext::botRouterId = NROUTERS;
-int GameContext::ourId = NROUTERS;
 
 int GameContext::_lowestEmptyAnswer = -1;
 

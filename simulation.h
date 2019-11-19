@@ -4,7 +4,7 @@
 #include "commands.h"
 
 
-NetworkState simulate(const NetworkState&, const std::vector<CreateCommand>&, const std::vector<MoveCommand>&);
+NetworkState simulate(const NetworkState&, const std::vector<Command>&, int);
 
 
 void run_sim_tests();

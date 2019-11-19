@@ -1,5 +1,5 @@
 import re
-
+import numpy as np
 
 class Res:
     def __init__(self,txt):
@@ -18,6 +18,27 @@ class Res:
     def short_string(self):
         return f"PM: {self.pc_mul} Score: {self.score} Diff: { self.bot_dist() }"
 
+    def out_router(self):
+        return self.routers[self.out_pos * 10: self.out_pos * 10 + 10]
+
+
+def router_groups(txt, c='1'):
+    res = []
+    ll = 0
+    for t in txt:
+        if t == c:
+            ll = ll + 1
+        else:
+            if ll > 0:
+                res.append(ll)
+            ll = 0
+    if ll > 0:
+        if txt.startswith(c) and len(res) > 0:
+            res[0] = res[0] + ll
+        else:
+            res.append(ll)
+    return tuple(sorted(res, reverse=True))
+
 
 byParam = {}
 
@@ -35,25 +56,16 @@ with open(r'nightly_stats.txt') as inp:
 
 print(f"{'-'*30} WHOLE AVG {'-'*30}")
 for p, pset in byParam.items():
-    avg = 0
-    mn = 1000
-    mx = 0
-    for r in pset:
-        avg = avg + r.score
-        mn = min(mn, r.score)
-        mx = max(mx, r.score)
-    print(f"P={p} {avg/len(pset)} (from {len(pset)}) min: {mn} max: {mx}")
-
-print(f"{'-'*30} BY DIST AVG {'-'*30}")
-for p, pset in byParam.items():
-    avg = 0
+    print(f'----{p}----')
     groups = {}
+    all = []
     for r in pset:
-        d = r.bot_dist()
-        if d not in groups:
-            groups[d] = (0, 0)
-        groups[d] = (groups[d][0] + 1, groups[d][1] + r.score)
-    for d, r in groups.items():
-        print(f"P={p} Dist={d} {r[1]/r[0]} (from {r[0]})")
+        key = router_groups(r.out_router())
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(r.score)
+        all.append(r.score)
 
-
+    for k, v in groups.items():
+        print(f"Key={k} avg: {np.mean(v)} min: {min(v)} max: {max(v)} count {len(v)}")
+    print(f"ALL avg: {np.mean(all)} min: {min(all)} max: {max(all)} count {len(all)}")

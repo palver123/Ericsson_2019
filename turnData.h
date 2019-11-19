@@ -70,7 +70,7 @@ struct GameContext
     std::map<int, MessagePiece> _allReceivedPieces;
 
     // The ID of the BOT's router. By default it contains an invalid ID (which will be overwritten when the BOT creates its first data packet)
-    static int botRouterId, ourId;
+    static int botRouterId;
 
     bool have_all_message_pieces() const;
     static bool hasReceivedEmptyMessage();

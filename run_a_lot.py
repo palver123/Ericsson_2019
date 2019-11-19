@@ -1,7 +1,8 @@
 import subprocess
 import re
 import numpy
-
+from datetime import datetime
+import os
 seeds = [
     950772, 318235, 342386, 992392, 529848, 348276, 633513, 192046, 817400, 748153, 189686, 476481, 674836, 811108,
     813038, 878264, 303319, 295204, 153826, 202849, 105416, 667408, 79531, 456592, 757733, 161826, 877071, 544189,
@@ -75,26 +76,40 @@ seeds = [
     131176, 719183, 304611, 299156, 110127, 290186, 880097, 79410, 362371, 336106, 97403, 806887, 650903, 341841,
     317639, 770873, 648082, 664258, 658198]
 results = []
-count = 1
+count = 100
 
 score_pattern = re.compile('END [(]latest message[)]: SCORE (\\d+)')
-
+desc_patten = re.compile('!!!!INFO (\\d+) (\\d+) (.*)$')
 #print(seeds[60])
 
+exes = ['x64/Release/Wololo2.exe']
+results = []
+prefix = os.path.join(r'C:\logs',str(datetime.now()).replace(':','_').replace('.','_').replace(' ','_'))
+jj = 0
 for i in range(0, count):
     print(f'Running {i}')
-    p1 = subprocess.Popen(['./console.runner/bin/ConsoleRunner.exe', '-e', 'x64/Debug/Wololo2.exe',
+    for e in exes:
+        jj = jj+1
+        p1 = subprocess.Popen(['./console.runner/bin/ConsoleRunner.exe', '-e', e,
                            '--host', 'ecovpn.dyndns.org', '--port', '11222', '-m', str(seeds[i])
                            ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    res = p1.communicate()
-    res = res[0].decode()
-    rr = -1
+        res = p1.communicate()
+        print(res[0])
+        res = res[0].decode()
+        rr = -1
+        desc = None
+        for l in res.splitlines():
+          if score_pattern.match(l):
+              rr = int(score_pattern.match(l).group(1))
+          if desc_patten.match(l):
+             x = desc_patten.match(l);
+             desc = (int(x.group(1)),int(x.group(2)),x.group(3))
+        if rr != -1:
+            results.append(rr)
+        print(rr)
+        p = prefix + "_" + str(jj)
+        with open(p,'w') as out:
+            out.write(f'{seeds[i]} {e} {desc[0]} {desc[1]} {desc[2]} {rr}\n')
 
-    for l in res.splitlines():
-        if score_pattern.match(l):
-            rr = int(score_pattern.match(l).group(1))
-    if rr != -1:
-        results.append(rr)
-    print(rr)
 
 print(f"Count {len(results)}/{count}, min {min(results)}, max {max(results)}, avg {numpy.mean(results)}")

@@ -11,38 +11,13 @@ namespace {
     array<bool, NROUTERS> canMoveRouterBot{};
 }
 
-void prepare_global_variables(const NetworkState& state)
-{
-    fill(canMoveRouterMe.begin(), canMoveRouterMe.end(), false);
-    for (const auto& data : state.dataPackets)
-    {
-        if (data.fromRouter == GameContext::ourId)
-            canMoveRouterMe[data.currRouter] = true;
-    }
-
-    for (auto slot = 0; slot < NSLOTS; ++slot)
-        slotCannotTakeNewPacketBot[slot] = !state.routerBits[GameContext::botRouterId][slot]; // Closed
-    fill(canMoveRouterBot.begin(), canMoveRouterBot.end(), false);
-    if (GameContext::botRouterId < NROUTERS)
-    {
-        for (const auto& data : state.dataPackets)
-        {
-            if (data.currRouter == GameContext::botRouterId)
-                slotCannotTakeNewPacketBot[data.currStoreId] = true; // Or occupied by other data packet
-            if (data.fromRouter == GameContext::botRouterId)
-                canMoveRouterBot[data.currRouter] = true;
-        }
-    }
-}
-
-
 string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext& ctx)
 {
     stepPre(turnData,ctx);
-    turnData.nextDir[GameContext::ourId] = (_requestCounter % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
+    turnData.nextDir[ourId] = (_requestCounter % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
     static bool info_dumped = false;
     if (!info_dumped && GameContext::botRouterId != NROUTERS) {
-        std::cerr << fmt::format("!!!!INFO {} {} {}", GameContext::ourId, GameContext::botRouterId, turnData.routers_dump()) << std::endl;
+        std::cerr << fmt::format("!!!!INFO {} {} {}", ourId, GameContext::botRouterId, turnData.routers_dump()) << std::endl;
         info_dumped = true;
     }
     if (GameContext::hasReceivedEmptyMessage())
@@ -66,28 +41,28 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     }
     // IMPORTANT: Assuming packets cannot get lost.
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
-    else if (actualData->getNumberOfPlayerPackets(GameContext::ourId) < MAX_PACKETS_IN_SYSTEM)
+    else if (actualData->getNumberOfPlayerPackets(ourId) < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
         array<bool, NSLOTS> slotTaken{};
         for (const auto& data : turnData.dataPackets)
         {
-            if (data.currRouter == GameContext::ourId)
+            if (data.currRouter == ourId)
                 slotTaken[data.currStoreId] = true;
         }
 
-        vector<CreateCommand> ccmds;
+        vector<Command> ccmds;
 
         for (auto slot = 0; slot < NSLOTS; slot++)
-            if (!slotTaken[slot] && turnData.routerBits[GameContext::ourId][slot])
-                ccmds.push_back({ GameContext::ourId, slot, _requestCounter });
+            if (!slotTaken[slot] && turnData.routerBits[ourId][slot])
+                ccmds.push_back(Command::Create(ourId, slot, _requestCounter ) );
 
         if (ccmds.size())
         {
-            CreateCommand bcmd{};
+            Command bcmd = Command::Pass();
             double best = -1e22;
             for (auto& c : ccmds) {
-                double score = Scores::future_seeing(simulate(turnData, { c }, {}));
+                double score = Scores::future_seeing(simulate(turnData, { c }, ourId), ourId);
                 if (best < score) {
                     bcmd = c;
                     best = score;
@@ -101,85 +76,76 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
             std::cerr << "!!! Failed creation !!!" << std::endl;
         }
     }
-    
-    return getBestMoveInNextTurn(turnData, Scores::future_seeing);
+    return command_execute(getBestMove(turnData, {}, Scores::future_seeing));
 }
 
+template<typename T>
+void next_idx(const vector<vector<T> >& vec2d, vector<int>& idx) {
+    assert(vec2d.size() == idx.size());
+    for(int i = static_cast<int>(idx.size()) -1; i>0; --i) {
+        ++idx[i];
+        if (idx[i] < vec2d[i].size())
+            return;
+        if (i == 0)
+            return;
+        idx[i] = 0;
+    }
+}
 
-#define FOR_MOVE(r, canMove) moveCmds.push_back(MoveCommand{});\
-    for (auto r = 0; r < NROUTERS; ++r) { if(!(canMove)) continue; moveCmds.back().routerId = r; \
-    for (auto d : possibleDirsV) { moveCmds.back().dir = d;
-
-#define FOR_CREATE(slotTaken, nPackets, maxMsgId, playerId)\
-    if (nPackets < MAX_PACKETS_IN_SYSTEM) { \
-        createCmds.push_back(CreateCommand{ playerId, 0, maxMsgId + 1 }); \
-        for (auto s = 0; s < NSLOTS; ++s) { \
-            if (slotTaken[s]) continue; \
-            createCmds.back().storeId = s;
-
-#define END_COMMAND_M }} moveCmds.pop_back();
-#define END_COMMAND_C } createCmds.pop_back(); }
-
-#define EVAL score = scoringFunc(simulate(initialState, createCmds, moveCmds)); \
-    sumScores += score; \
-    ++nScores;
-
-
-string ProbabilityScoreStrategy::getBestMoveInNextTurn(const NetworkState& initialState, double scoringFunc(const NetworkState&))
+std::vector<std::pair<double, Command> > ProbabilityScoreStrategy::getMovementScores(const NetworkState& state, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
 {
-    vector<CreateCommand> createCmds{};
-    vector<MoveCommand> moveCmds{};
-
-    prepare_global_variables(initialState);
-
-    array<VerticalDirection, 2> possibleDirsV = { VerticalDirection::NEGATIVE, VerticalDirection::POSITIVE };
-    const auto knowBotRouter = GameContext::botRouterId < NROUTERS;
-    auto maxMessageId_bot = -1;
-    const auto nPacketsBot = knowBotRouter ? initialState.getNumberOfPlayerPackets(GameContext::botRouterId, maxMessageId_bot) : MAX_PACKETS_IN_SYSTEM;
-    double score;
-
-    // The system is guaranteed to move a router in an arbitrary direction
-
-    // Simulate the case when I pass
-    string bestCommand = "PASS";
-    double sumScores = 0;
-    unsigned nScores = 0;
-    FOR_MOVE(rSys, true)
-        EVAL     // both me and the BOT pass
-
-        FOR_CREATE(slotCannotTakeNewPacketBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
-            EVAL // the BOT creates a packet
-        END_COMMAND_C
-
-        FOR_MOVE(rBot, canMoveRouterBot[rBot])
-            EVAL // the BOT moves a router
-        END_COMMAND_M
-    END_COMMAND_M
-    auto bestScore = sumScores / nScores; // estimated value of the scores of the possible outcomes of me PASSING
-
-    // Simulate the case when I move a router
-    FOR_MOVE(rMe, canMoveRouterMe[rMe])
-        auto move_command_str = moveCmds.back().to_exec_string();
-        sumScores = 0;
-        nScores = 0;
-        FOR_MOVE(rSys, true)
-            EVAL     // the BOT passes
-
-            FOR_CREATE(slotCannotTakeNewPacketBot, nPacketsBot, maxMessageId_bot, GameContext::botRouterId)
-                EVAL // the BOT creates a packet
-            END_COMMAND_C
-
-            FOR_MOVE(rBot, canMoveRouterBot[rBot])
-                EVAL // the BOT moves a router too
-            END_COMMAND_M
-        END_COMMAND_M
-        const auto accumulateCommandScore = sumScores / nScores; // estimated value of the scores of the possible outcomes of me MOVING
-        if (accumulateCommandScore > bestScore)
-        {
-            bestScore = accumulateCommandScore;
-            bestCommand = move(move_command_str);
+    auto moves = getPossibleMoves(state,true,false,true);
+    if (moves.empty())
+        return { { 0,Command::Pass() } };
+    vector<pair< double, Command> > res;
+    for (const auto& ourC : moves) {
+        if (players.size()) {
+            vector<vector<pair<double, Command> > > others;
+            for(int i = 0; i< static_cast<int>(players.size()); ++i) 
+            {
+                others.push_back(players[i]->getProbableMoves(state));
+            }
+            double scoreSum = 0;
+            double scoreDiv = 0; // Will be 1 if all players gives back proper probabilities
+            for(vector<int> idxs(others.size(), 0); idxs.front() < others.front().size(); next_idx(others,idxs) ) {
+                double pos = 1;
+                static vector<Command> cmds;
+                cmds.clear();
+                cmds.push_back(ourC);
+                for(int i =0; i<idxs.size(); ++i) {
+                    cmds.push_back(others[i][idxs[i]].second);
+                    pos *= others[i][idxs[i]].first;
+                }
+                double score = scoring(simulate(state, cmds, ourId), ourId);
+                scoreSum += score;
+                scoreDiv += pos;
+            }
+            if (scoreDiv > 0)
+                scoreSum /= scoreDiv;
+            else
+                scoreSum = 0;
+            res.push_back({ scoreSum, ourC });
         }
-    END_COMMAND_M
+        else {
+            double score = scoring(simulate(state, {ourC}, ourId), ourId);
+            res.push_back({ score, ourC});
+        }
+    }
+    return res;
+}
 
-    return bestCommand;
+Command ProbabilityScoreStrategy::getBestMove(const NetworkState& state, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
+{
+    auto res = getMovementScores(state, players, scoring);
+    Command best = Command::Pass();
+    double best_score = -1e22;
+    for(const auto& it : res)
+    {
+        if (it.first > best_score)
+        {
+            best_score = it.first;
+            best = it.second;
+        }
+    }
+    return best;
 }

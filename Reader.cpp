@@ -49,7 +49,7 @@ bool Reader::readData(NetworkState& state, GameContext& ctx)
                 >> curr.fromRouter
                 >> curr.toRouter
                 >> reinterpret_cast<char&>(curr.dir);
-            if (curr.fromRouter != GameContext::ourId)
+            if (curr.fromRouter != static_cast<int>(ctx.commandPrefix.routerId))
             {
                 // ASSUMPTION 1: There are only 2 players: the BOT and us
                 // ASSUMPTION 2: REQUEST message always precedes every DATA message (so at this point we already know the ID of our router)
