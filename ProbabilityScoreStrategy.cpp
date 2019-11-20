@@ -46,7 +46,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
     else if (actualData->getNumberOfPlayerPackets(ourId,true) < MAX_PACKETS_IN_SYSTEM)
     {
-        vector<Command> ccmds = Player::getPossibleMoves(turnData,ourId,false,false,_requestCounter);
+        vector<Command> ccmds = getPossibleMoves(turnData, false, false, true);
 
         if (ccmds.size())
         {
