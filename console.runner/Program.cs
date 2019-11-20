@@ -18,7 +18,7 @@ namespace ConsoleRunner
         [Option('s', "silent", Required = false, HelpText = "Silent mode disables writing console output.", Default = false)]
         public bool Silent { get; set; }
 
-        [Option('m', "mapseed", Required = false, HelpText = "Map seed to pass to C++ executable. There is no default value, if you omit it, nothing is pased to the C++ exec.", Default = -1)]
+        [Option('m', "mapseed", Required = true, HelpText = "Map seed to pass to C++ executable. There is no default value, you must pass something.")]
         public int Seed { get; set; }
 
         [Option('e', "exec", Required = false, HelpText = "Path to the C++ executable.", Default = "./Wololo.exe")]
@@ -62,8 +62,7 @@ namespace ConsoleRunner
                 pi.WindowStyle = ProcessWindowStyle.Hidden;
             }
 
-            if (options.Seed >= 0)
-                pi.Arguments = options.Seed.ToString();
+            pi.Arguments = options.Seed.ToString();
 
             using (var client = new TcpClient(options.HostName, options.Port))
             using (var p = Process.Start(pi))
