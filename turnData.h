@@ -67,11 +67,15 @@ struct GameContext
     // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
     static int _lowestEmptyAnswer;
 
-    // ALL the received answers to our requests so far
+    // ALL the non-empty received answers to our requests so far
     std::map<int, MessagePiece> _allReceivedPieces;
 
+    // Info about the data packets belonging to a player
     struct PlayerPackets {
+        // The data packets that the player has received in the current turn (because he sent a CREATE command in the previous turn). Subset of 'active' packets
         std::set<int> received;
+
+        // The data packets that belong to the player and are present in the current network (on one of the routers).
         std::set<int> active;
     };
 

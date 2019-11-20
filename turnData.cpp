@@ -33,7 +33,7 @@ bool GameContext::receivedEmptyPacket(int playerId)
         && *playerPackets[playerId].received.rbegin() >= _lowestEmptyAnswer;
 }
 
-std::map<int, GameContext::PlayerPackets> GameContext::playerPackets;
+map<int, GameContext::PlayerPackets> GameContext::playerPackets;
 
 bool GameContext::have_all_message_pieces() const
 {
@@ -64,19 +64,22 @@ void GameContext::OnMessageReceived(const MessagePiece& msg)
 
 void GameContext::refreshPlayerPackets(const NetworkState& state)
 {
-    std::map<int, std::set<int> > active;
+    map<int, set<int> > active;
     for(const auto& p: state.dataPackets) {
-        auto player = playerPackets[p.fromRouter];
-        active[p.fromRouter].insert(p.messageId);
+        auto playerId = p.fromRouter;
+        auto player = playerPackets[playerId];
+        active[playerId].insert(p.messageId);
     }
+
     for(auto& it : playerPackets) {
-        auto& s1 = it.second.active;
-        auto& s2 = active[it.first];
-        std::set<int> result;
-        std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(),
-            std::inserter(result, result.end()));
-        it.second.received.insert(result.begin(), result.end());
-        s1 = s2;
+        auto playerId = it.first;
+        auto& activeOld = it.second.active;
+        auto& activeNew = active[playerId];
+        set<int> receivedNow;
+        set_difference(activeOld.begin(), activeOld.end(), activeNew.begin(), activeNew.end(),
+            inserter(receivedNow, receivedNow.end()));
+        it.second.received.insert(receivedNow.begin(), receivedNow.end());
+        activeOld = activeNew;
     }
 }
 
@@ -97,7 +100,7 @@ int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer, int& maxMes
     for (const auto& packet : dataPackets) {
         if (packet.fromRouter == routerOfPlayer)
         {
-            maxMessageId = std::max(maxMessageId, static_cast<int>(packet.messageId));
+            maxMessageId = max(maxMessageId, static_cast<int>(packet.messageId));
             ++res;
         }
     }
@@ -109,9 +112,9 @@ void NetworkState::clear()
     dataPackets.clear();
 }
 
-std::string NetworkState::routers_dump()
+string NetworkState::routers_dump()
 {
-    std::string res;
+    string res;
     for(int i = 0; i < NROUTERS; ++i)
         for(int j = 0; j < NSLOTS; ++j)
         {
