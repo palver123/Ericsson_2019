@@ -9,7 +9,8 @@ using namespace std;
 double Scores::distance_based_scoring_change_handling(const NetworkState& state, int playerId)
 {
     const auto score_request_dist = [](double d) {
-        return (7 - d) * 1.0;
+        double res = (7 - d) * 1.0;
+        return res;
     };
     const auto score_resp_dist = score_request_dist;
     const auto arrived_request = [](double count) {
