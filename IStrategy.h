@@ -18,7 +18,7 @@ protected:
     int ourId = NROUTERS;
     const NetworkState* actualData = nullptr;
     virtual void stepPre(const NetworkState& turnData, const GameContext& ctx);
-    virtual std::vector<Command> getPossibleMoves(const NetworkState& turnData, bool pass, bool create, bool move) const;
+    virtual std::vector<Command> getPossibleMoves(const NetworkState& turnData, bool pass, bool move, bool create) const;
     int _requestCounter = 0;
     std::string command_execute(const Command& c);
 };

@@ -32,7 +32,7 @@ void IStrategy::stepPre(const NetworkState& turnData, const GameContext& ctx)
     actualData = &turnData;
 }
 
-std::vector<Command> IStrategy::getPossibleMoves(const NetworkState& turnData, bool pass, bool create, bool move) const
+std::vector<Command> IStrategy::getPossibleMoves(const NetworkState& turnData, bool pass, bool move, bool create) const
 {
     return Player::getPossibleMoves(turnData, ourId, pass, move, create ? _requestCounter : -1);
 }
