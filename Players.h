@@ -10,6 +10,22 @@
 
 using namespace std;
 
+
+template<typename T> 
+pair<double,T> bestInVector(const vector<pair<double, T>>& v, const T& def) {
+    auto best = def;
+    double best_score = -1e22;
+    for (const auto& it : v)
+    {
+        if (it.first > best_score)
+        {
+            best_score = it.first;
+            best = it.second;
+        }
+    }
+    return { best_score,best };
+}
+
 class Player {
 public:
     int id;
@@ -20,7 +36,8 @@ public:
         return {};
     };
     static std::vector<Command> getPossibleMoves(const NetworkState& turnData, int ourId, bool pass, bool move, int create_req = -1);
-    static std::vector<std::pair<double, Command> > getMovementScores(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring);
+    static std::vector<std::pair<double, Command> > getMovementScoresComplex(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring);
+    static std::vector<std::pair<double, Command> > getMovementScoresSimple(const NetworkState& state, const std::vector<Command>& moves, int ourId, scoringFuction scoring);
 
 };
 
