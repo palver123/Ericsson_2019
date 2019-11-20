@@ -18,7 +18,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
         turnData.nextDir[p.first] = ((p.second.active.size() + p.second.received.size()) % 2) ? HorizontalDirection::RIGHT : HorizontalDirection::LEFT;
 
 
-    if (GameContext::hasReceivedEmptyMessage())
+    if (GameContext::receivedEmptyPacket(ourId))
     {
         // Guess the solution
         if (ctx.have_all_message_pieces())
@@ -39,7 +39,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     }
     // IMPORTANT: Assuming packets cannot get lost.
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
-    else if (actualData->getNumberOfPlayerPackets(ourId) < MAX_PACKETS_IN_SYSTEM)
+    else if (actualData->getNumberOfPlayerPackets(ourId,true) < MAX_PACKETS_IN_SYSTEM)
     {
         // Try to ask for a new packet
         array<bool, NSLOTS> slotTaken{};
@@ -78,7 +78,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     players.emplace_back(new RandomNetworkMovements{});
     for(const auto& p : GameContext::playerPackets)
         if (p.first != ourId)
-            players.emplace_back(new RandomPlayer(p.first));
+            players.emplace_back(new RandomPlayerCreatePref(p.first));
     return command_execute(getBestMove(turnData, players, Scores::future_seeing));
 }
 

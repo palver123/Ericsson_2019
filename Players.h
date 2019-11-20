@@ -52,3 +52,23 @@ public:
         return res;
     }
 };
+
+
+class RandomPlayerCreatePref : public Player {
+public:
+    RandomPlayerCreatePref(int id) :Player(id) {
+
+    }
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
+    {
+        auto cmds = getPossibleMoves(turnData, id, false, false, 666);
+        if (cmds.empty())
+            cmds = getPossibleMoves(turnData, id, true, true);
+        std::vector<std::pair<double, Command> > res;
+        for (const auto& c : cmds) {
+            res.push_back({ 1.0 / cmds.size(), c });
+        }
+        return res;
+    }
+};
+
