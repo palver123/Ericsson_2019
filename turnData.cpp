@@ -67,7 +67,7 @@ void GameContext::refreshPlayerPackets(const NetworkState& state)
     map<int, set<int> > active;
     for(const auto& p: state.dataPackets) {
         auto playerId = p.fromRouter;
-        auto player = playerPackets[playerId];
+        playerPackets.emplace(playerId, PlayerPackets{});
         active[playerId].insert(p.messageId);
     }
 
