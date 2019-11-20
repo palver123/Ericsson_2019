@@ -93,32 +93,7 @@ int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer, bool skip_a
     return res;
 }
 
-int NetworkState::getNumberOfPlayerPackets(const int routerOfPlayer, int& maxMessageId) const
-{
-    auto res = 0;
-    maxMessageId = -1;
-    for (const auto& packet : dataPackets) {
-        if (packet.fromRouter == routerOfPlayer)
-        {
-            maxMessageId = max(maxMessageId, static_cast<int>(packet.messageId));
-            ++res;
-        }
-    }
-    return res;
-}
-
 void NetworkState::clear()
 {
     dataPackets.clear();
-}
-
-string NetworkState::routers_dump()
-{
-    string res;
-    for(int i = 0; i < NROUTERS; ++i)
-        for(int j = 0; j < NSLOTS; ++j)
-        {
-            res += routerBits[i][j] ? "1" : "0";
-        }
-    return res;
 }
