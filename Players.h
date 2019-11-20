@@ -5,6 +5,10 @@
 #include "commands.h"
 #include "turnData.h"
 #include <map>
+#include <memory>
+#include "Scores.h"
+
+using namespace std;
 
 class Player {
 public:
@@ -16,6 +20,7 @@ public:
         return {};
     };
     static std::vector<Command> getPossibleMoves(const NetworkState& turnData, int ourId, bool pass, bool move, int create_req = -1);
+    static std::vector<std::pair<double, Command> > getMovementScores(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring);
 
 };
 

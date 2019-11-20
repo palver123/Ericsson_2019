@@ -62,63 +62,9 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     return command_execute(getBestMove(turnData, moves, players, Scores::future_seeing));
 }
 
-template<typename T>
-void next_idx(const vector<vector<T> >& vec2d, vector<int>& idx) {
-    assert(vec2d.size() == idx.size());
-    for(int i = static_cast<int>(idx.size()) -1; i>=0; --i) {
-        ++idx[i];
-        if (idx[i] < vec2d[i].size())
-            return;
-        if (i == 0)
-            return;
-        idx[i] = 0;
-    }
-}
-
-std::vector<std::pair<double, Command> > ProbabilityScoreStrategy::getMovementScores(const NetworkState& state, const std::vector<Command>& moves, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
-{
-    if (moves.empty())
-        return { { 0,Command::Pass() } };
-    vector<pair< double, Command> > res;
-    for (const auto& ourC : moves) {
-        if (players.size()) {
-            vector<vector<pair<double, Command> > > others;
-            for(int i = 0; i< static_cast<int>(players.size()); ++i) 
-            {
-                others.push_back(players[i]->getProbableMoves(state));
-            }
-            double scoreSum = 0;
-            double scoreDiv = 0; // Will be 1 if all players gives back proper probabilities
-            for(vector<int> idxs(others.size(), 0); idxs.front() < others.front().size(); next_idx(others,idxs) ) {
-                double pos = 1;
-                static vector<Command> cmds;
-                cmds.clear();
-                cmds.push_back(ourC);
-                for(int i =0; i<idxs.size(); ++i) {
-                    cmds.push_back(others[i][idxs[i]].second);
-                    pos *= others[i][idxs[i]].first;
-                }
-                double score = scoring(simulate(state, cmds, ourId), ourId);
-                scoreSum += score;
-                scoreDiv += pos;
-            }
-            if (scoreDiv > 0)
-                scoreSum /= scoreDiv;
-            else
-                scoreSum = 0;
-            res.push_back({ scoreSum, ourC });
-        }
-        else {
-            double score = scoring(simulate(state, {ourC}, ourId), ourId);
-            res.push_back({ score, ourC});
-        }
-    }
-    return res;
-}
-
 Command ProbabilityScoreStrategy::getBestMove(const NetworkState& state, const std::vector<Command>& moves, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
 {
-    auto res = getMovementScores(state, moves, players, scoring);
+    auto res = Player::getMovementScores(state, moves, ourId, players, scoring);
     Command best = Command::Pass();
     double best_score = -1e22;
     for(const auto& it : res)
@@ -129,5 +75,6 @@ Command ProbabilityScoreStrategy::getBestMove(const NetworkState& state, const s
             best = it.second;
         }
     }
+    std::cerr << "Best score: " << best_score << std::endl;
     return best;
 }

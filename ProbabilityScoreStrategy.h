@@ -8,7 +8,7 @@
 
 class ProbabilityScoreStrategy : public IStrategy
 {
-    std::vector<std::pair<double, Command> > getMovementScores(const NetworkState& state, const std::vector<Command>& moves, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring);
+    static std::vector<std::pair<double, Command> > getMovementScores(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring);
     Command getBestMove(const NetworkState& state, const std::vector<Command>& moves, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring);
 public:
     virtual std::string step(NetworkState&, const GameContext&) override;

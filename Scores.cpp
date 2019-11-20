@@ -46,5 +46,5 @@ double Scores::future_seeing(const NetworkState& state, int playerId)
     for (const auto& c : cmds) {
         best_score = max(best_score, Scores::distance_based_scoring_change_handling(simulate(state, { c }, playerId), playerId));
     }
-    return basescore + best_score * bc_mul;
+    return (basescore + best_score * bc_mul) / (bc_mul + 1);
 }
