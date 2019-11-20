@@ -132,22 +132,22 @@
     <ClInclude Include="commands.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="directions.h" />
+    <ClInclude Include="Players.h" />
     <ClInclude Include="ProbabilityScoreStrategy.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Scores.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="IStrategy.h" />
-    <ClInclude Include="TestingStrategy.h" />
     <ClInclude Include="turnData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Players.cpp" />
     <ClCompile Include="ProbabilityScoreStrategy.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="Scores.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="IStrategy.cpp" />
-    <ClCompile Include="TestingStrategy.cpp" />
     <ClCompile Include="turnData.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
