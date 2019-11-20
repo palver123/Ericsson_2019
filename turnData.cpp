@@ -48,9 +48,9 @@ bool GameContext::have_all_message_pieces() const
     return highestReceivedIdx == _lowestEmptyAnswer - 1;
 }
 
-bool GameContext::hasReceivedEmptyMessage()
+bool hasReceivedEmptyMessage()
 {
-    return _lowestEmptyAnswer >= 0;
+    return GameContext::_lowestEmptyAnswer >= 0;
 }
 
 void GameContext::OnMessageReceived(const MessagePiece& msg)

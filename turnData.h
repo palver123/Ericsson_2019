@@ -82,7 +82,6 @@ struct GameContext
     static std::map<int, PlayerPackets> playerPackets;
 
     bool have_all_message_pieces() const;
-    static bool hasReceivedEmptyMessage();
     void OnMessageReceived(const MessagePiece&);
     static void refreshPlayerPackets(const NetworkState& state);
 };
