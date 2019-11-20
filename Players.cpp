@@ -50,7 +50,20 @@ void next_idx(const vector<vector<T> >& vec2d, vector<int>& idx) {
     }
 }
 
-std::vector<std::pair<double, Command> > Player::getMovementScores(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
+std::vector<std::pair<double, Command> > Player::getMovementScoresSimple(const NetworkState& state, const std::vector<Command>& moves, int ourId, scoringFuction scoring)
+{
+    if (moves.empty())
+        return { { 0,Command::Pass() } };
+    double origScore = scoring(state, ourId);
+    vector<pair< double, Command> > res;
+    for (const auto& ourC : moves) {
+        double score = scoring(simulate(state, { ourC }, ourId), ourId);
+        res.push_back({ score - origScore, ourC });
+    }
+    return res;
+}
+
+std::vector<std::pair<double, Command> > Player::getMovementScoresComplex(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
 {
     if (moves.empty())
         return { { 0,Command::Pass() } };
