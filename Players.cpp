@@ -69,13 +69,16 @@ std::vector<std::pair<double, Command> > Player::getMovementScoresComplex(const 
         return { { 0,Command::Pass() } };
     double origScore = scoring(state, ourId);
     vector<pair< double, Command> > res;
+    vector<vector<pair<double, Command> > > others;
+    if (players.size()) {
+        for (int i = 0; i < static_cast<int>(players.size()); ++i)
+        {
+            others.push_back(players[i]->getProbableMoves(state));
+        }
+    }
+
     for (const auto& ourC : moves) {
-        if (players.size()) {
-            vector<vector<pair<double, Command> > > others;
-            for (int i = 0; i < static_cast<int>(players.size()); ++i)
-            {
-                others.push_back(players[i]->getProbableMoves(state));
-            }
+        if (others.size()) {
             double scoreSum = 0;
             double scoreDiv = 0; // Will be 1 if all players gives back proper probabilities
             for (vector<int> idxs(others.size(), 0); idxs.front() < others.front().size(); next_idx(others, idxs)) {
@@ -123,5 +126,99 @@ std::vector<std::pair<double, Command> > RandomPlayer::getProbableMoves(const Ne
     for (const auto& c : cmds) {
         res.push_back({ 1.0 / cmds.size(), c });
     }
+    return res;
+}
+
+std::vector<std::pair<double, Command> > RandomPlayerCreatePref::getProbableMoves(const NetworkState& turnData) const
+{
+    auto cmds = getPossibleMoves(turnData, id, false, false, 666);
+    if (cmds.empty())
+        cmds = getPossibleMoves(turnData, id, true, true);
+    std::vector<std::pair<double, Command> > res;
+    for (const auto& c : cmds) {
+        res.push_back({ 1.0 / cmds.size(), c });
+    }
+    return res;
+}
+
+std::vector<std::pair<double, Command> > ThinkingPlayer::getScoredMoves(const NetworkState& turnData) const
+{
+    auto cmds = getPossibleMoves(turnData, id, false, false, 666);
+    if (cmds.empty())
+        cmds = getPossibleMoves(turnData, id, true, true);
+
+    auto moves = Player::getMovementScoresSimple(turnData, cmds, id, Scores::distance_based_scoring_change_handling);
+    return moves;
+}
+
+std::vector<std::pair<double, Command> > ThinkingPlayer::transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const
+{
+    // 50% is distributed evenly and 50% is distibuted normally;
+    std::vector<std::pair<double, Command> > res;
+    for (const auto& [score, cmd] : moves) {
+        res.push_back({ score, cmd });
+    }
+    normalizeVector(res);
+    for (auto& [p, c] : res) {
+        p += 1.0 / res.size();
+    }
+    normalizeVector(res);
+    return res;
+}
+
+std::vector<std::pair<double, Command> > ThinkingPlayer::getProbableMoves(const NetworkState& turnData) const
+{
+    auto moves = getScoredMoves(turnData);
+    if (moves.empty()) {
+        moves.push_back({ 1.,Command::Pass() });
+    }
+    auto res = transformScoresToProb(moves);
+    normalizeVector(res);
+    return res;
+}
+
+std::vector<std::pair<double, Command> > SmartPlayer::getScoredMoves(const NetworkState& turnData) const
+{
+    auto cmds = getPossibleMoves(turnData, id, false, false, 666);
+    if (cmds.empty())
+        cmds = getPossibleMoves(turnData, id, true, true);
+
+    vector<std::shared_ptr<Player>> players;
+    players.emplace_back(new RandomNetworkMovements{});
+    for (const auto& p : GameContext::playerPackets)
+        if (p.first != id)
+            players.emplace_back(new ThinkingPlayer(p.first));
+
+    auto moves = Player::getMovementScoresComplex(turnData, cmds, id, players, Scores::future_seeing);
+    return moves;
+}
+
+std::vector<std::pair<double, Command> > SmartPlayerUnstableProb::transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const
+{
+    // 10% is distributed evenly and 90% is distibuted according to score;
+    std::vector<std::pair<double, Command> > res;
+    for (const auto& [score, cmd] : moves) {
+        res.push_back({ score * score, cmd });
+    }
+    normalizeVector(res);
+    for (auto& [p, c] : res) {
+        p += 1.0 / 9 / res.size();
+    }
+    normalizeVector(res);
+    return res;
+}
+
+std::vector<std::pair<double, Command> > SimplePlayerUnstProp::transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const
+{
+    // 10% is distributed evenly and 90% is distibuted according to score;
+    std::vector<std::pair<double, Command> > res;
+    for (const auto& [score, cmd] : moves) {
+        res.push_back({ score * score, cmd });
+    }
+    normalizeVector(res);
+    for (auto& [p, c] : res) {
+        p += 1.0 / 9 / res.size();
+    }
+    normalizeVector(res);
     return res;
 }

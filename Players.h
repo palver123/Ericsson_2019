@@ -80,17 +80,7 @@ public:
     RandomPlayerCreatePref(int id) :Player(id) {
 
     }
-    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
-    {
-        auto cmds = getPossibleMoves(turnData, id, false, false, 666);
-        if (cmds.empty())
-            cmds = getPossibleMoves(turnData, id, true, true);
-        std::vector<std::pair<double, Command> > res;
-        for (const auto& c : cmds) {
-            res.push_back({ 1.0 / cmds.size(), c });
-        }
-        return res;
-    }
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override;
 };
 
 
@@ -100,39 +90,35 @@ public:
 
     }
 
-    virtual std::vector<std::pair<double, Command> > getScoredMoves(const NetworkState& turnData) const {
-        auto cmds = getPossibleMoves(turnData, id, false, false, 666);
-        if (cmds.empty())
-            cmds = getPossibleMoves(turnData, id, true, true);
+    virtual std::vector<std::pair<double, Command> > getScoredMoves(const NetworkState& turnData) const;
 
-        auto moves = Player::getMovementScoresSimple(turnData, cmds, id, Scores::distance_based_scoring_change_handling);
-        return moves;
-    }
+    virtual std::vector<std::pair<double, Command> > transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const;
 
-    virtual std::vector<std::pair<double, Command> > transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const
-    {
-        // 50% is distributed evenly and 50% is distibuted normally;
-        std::vector<std::pair<double, Command> > res;
-        for (const auto& [score, cmd] : moves) {
-            res.push_back({ score, cmd });
-        }
-        normalizeVector(res);
-        for (auto& [p, c] : res) {
-            p += 1.0 / res.size();
-        }
-        normalizeVector(res);
-        return res;
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override;
+};
+
+
+class SimplePlayerUnstProp : public ThinkingPlayer {
+public:
+    SimplePlayerUnstProp(int id) :ThinkingPlayer(id) {
 
     }
+    virtual std::vector<std::pair<double, Command> > transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const override;
+};
 
-    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
-    {
-        auto moves = getScoredMoves(turnData);
-        if (moves.empty()) {
-            moves.push_back({ 1.,Command::Pass() });
-        }
-        auto res = transformScoresToProb(moves);
-        normalizeVector(res);
-        return res;
+class SmartPlayer : public ThinkingPlayer {
+public:
+    SmartPlayer(int id) :ThinkingPlayer(id) {
+
     }
+    virtual std::vector<std::pair<double, Command> > getScoredMoves(const NetworkState& turnData) const override;
+
+};
+
+class SmartPlayerUnstableProb : public SmartPlayer {
+public:
+    SmartPlayerUnstableProb(int id) :SmartPlayer(id) {
+
+    }
+    virtual std::vector<std::pair<double, Command> > transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const override;
 };
