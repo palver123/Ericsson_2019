@@ -26,6 +26,22 @@ pair<double,T> bestInVector(const vector<pair<double, T>>& v, const T& def) {
     return { best_score,best };
 }
 
+template<typename T>
+void normalizeVector(vector<pair<double, T>>& v) {
+    double ss = 0;
+    for(const auto& [x,y] : v)
+    {
+        ss += x;
+    }
+    if (ss <= 0.0) return;
+    for (auto& [x, y] : v)
+    {
+        x /= ss;
+    }
+
+}
+
+
 class Player {
 public:
     int id;
@@ -46,16 +62,7 @@ public:
     RandomNetworkMovements() : Player(-2) {
     }
 
-    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
-    {
-        std::vector<std::pair<double, Command> > res;
-        for (int r = 0; r < NROUTERS; ++r)
-        {
-            res.push_back({ 0.5 / NROUTERS ,Command::Move(r, VerticalDirection::NEGATIVE) });
-            res.push_back({ 0.5 / NROUTERS ,Command::Move(r, VerticalDirection::POSITIVE) });
-        }
-        return res;
-    }
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override;
 
 };
 
@@ -64,15 +71,7 @@ public:
     RandomPlayer(int id) :Player(id) {
 
     }
-    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
-    {
-        auto cmds = getPossibleMoves(turnData, id, true, true, 666);
-        std::vector<std::pair<double, Command> > res;
-        for(const auto& c : cmds) {
-            res.push_back({ 1.0 / cmds.size(), c });
-        }
-        return res;
-    }
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override;
 };
 
 
@@ -94,3 +93,46 @@ public:
     }
 };
 
+
+class ThinkingPlayer : public Player {
+public:
+    ThinkingPlayer(int id) :Player(id) {
+
+    }
+
+    virtual std::vector<std::pair<double, Command> > getScoredMoves(const NetworkState& turnData) const {
+        auto cmds = getPossibleMoves(turnData, id, false, false, 666);
+        if (cmds.empty())
+            cmds = getPossibleMoves(turnData, id, true, true);
+
+        auto moves = Player::getMovementScoresSimple(turnData, cmds, id, Scores::distance_based_scoring_change_handling);
+        return moves;
+    }
+
+    virtual std::vector<std::pair<double, Command> > transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const
+    {
+        // 50% is distributed evenly and 50% is distibuted normally;
+        std::vector<std::pair<double, Command> > res;
+        for (const auto& [score, cmd] : moves) {
+            res.push_back({ score, cmd });
+        }
+        normalizeVector(res);
+        for (auto& [p, c] : res) {
+            p += 1.0 / res.size();
+        }
+        normalizeVector(res);
+        return res;
+
+    }
+
+    virtual std::vector<std::pair<double, Command> > getProbableMoves(const NetworkState& turnData) const override
+    {
+        auto moves = getScoredMoves(turnData);
+        if (moves.empty()) {
+            moves.push_back({ 1.,Command::Pass() });
+        }
+        auto res = transformScoresToProb(moves);
+        normalizeVector(res);
+        return res;
+    }
+};

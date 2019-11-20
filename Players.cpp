@@ -104,3 +104,24 @@ std::vector<std::pair<double, Command> > Player::getMovementScoresComplex(const 
     }
     return res;
 }
+
+std::vector<std::pair<double, Command> > RandomNetworkMovements::getProbableMoves(const NetworkState& turnData) const
+{
+    std::vector<std::pair<double, Command> > res;
+    for (int r = 0; r < NROUTERS; ++r)
+    {
+        res.push_back({ 0.5 / NROUTERS ,Command::Move(r, VerticalDirection::NEGATIVE) });
+        res.push_back({ 0.5 / NROUTERS ,Command::Move(r, VerticalDirection::POSITIVE) });
+    }
+    return res;
+}
+
+std::vector<std::pair<double, Command> > RandomPlayer::getProbableMoves(const NetworkState& turnData) const
+{
+    auto cmds = getPossibleMoves(turnData, id, true, true, 666);
+    std::vector<std::pair<double, Command> > res;
+    for (const auto& c : cmds) {
+        res.push_back({ 1.0 / cmds.size(), c });
+    }
+    return res;
+}
