@@ -70,7 +70,7 @@ struct GameContext
 
     // Info about the data packets belonging to a player
     struct PlayerPackets {
-        // The data packets that the player has received in the current turn (because he sent a CREATE command in the previous turn). Subset of 'active' packets
+        // The indices of the message pieces that the player has received since the beginning of the game
         std::set<int> received;
 
         // The data packets that belong to the player and are present in the current network (on one of the routers).
