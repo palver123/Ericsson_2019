@@ -53,10 +53,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
             Command bcmd = getBestMove(turnData, ccmds, players, Scores::future_seeing);
             return command_execute(bcmd);
         }
-        else
-        {
-            std::cerr << "!!! Failed creation !!!" << std::endl;
-        }
+        std::cerr << "!!! Failed creation !!!" << std::endl;
     }
     auto moves = getPossibleMoves(turnData, true, true, false);
     return command_execute(getBestMove(turnData, moves, players, Scores::future_seeing));
