@@ -79,7 +79,7 @@ void GameContext::refreshPlayerPackets(const NetworkState& state)
         set_difference(activeOld.begin(), activeOld.end(), activeNew.begin(), activeNew.end(),
             inserter(receivedNow, receivedNow.end()));
         it.second.received.insert(receivedNow.begin(), receivedNow.end());
-        activeOld = activeNew;
+        activeOld = move(activeNew);
     }
 }
 
