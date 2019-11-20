@@ -50,17 +50,8 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
 
         if (ccmds.size())
         {
-            Command bcmd = Command::Pass();
-            double best = -1e22;
-            for (auto& c : ccmds) {
-                double score = Scores::future_seeing(simulate(turnData, { c }, ourId), ourId);
-                if (best < score) {
-                    bcmd = c;
-                    best = score;
-                }
-            }
-            ++_requestCounter;
-            return bcmd.to_exec_string();
+            Command bcmd = getBestMove(turnData, ccmds, players, Scores::future_seeing);
+            return command_execute(bcmd);
         }
         else
         {
