@@ -62,33 +62,34 @@ struct GameContext
 {
     CommandDescription commandPrefix;
 
-    // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
-    static int _lowestEmptyAnswer;
-
-    // ALL the non-empty received answers to our requests so far
-    std::map<int, MessagePiece> _allReceivedPieces;
-
     // Info about the data packets belonging to a player
     struct PlayerPackets {
+        // The lowest known index of a package whose answer we have received from the target computer and it was empty. (Empty answers signal the end of the message)
+        int lowestEmptyAnswer = -1;
+
         // The indices of the message pieces that the player has received since the beginning of the game
         std::set<int> received;
 
         // The data packets that belong to the player and are present in the current network (on one of the routers).
         std::set<int> active;
+
+        bool receivedEmptyPacket() const;
     };
 
-    static bool receivedEmptyPacket(int playerId);
-
     static std::map<int, PlayerPackets> playerPackets;
+    static void refreshPlayerPackets(const NetworkState& state);
 
+    // ALL the non-empty received answers to our requests so far
+    std::map<int, MessagePiece> _allReceivedPieces;
     bool have_all_message_pieces() const;
     void OnMessageReceived(const MessagePiece&);
-    static void refreshPlayerPackets(const NetworkState& state);
+
+private:
+    int ourId() const;
 };
 
 namespace Router {
     inline int GetPairOfRouter(int router_idx) {
         return (router_idx + NROUTERS / 2) % NROUTERS;
     }
-
 }
