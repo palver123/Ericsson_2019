@@ -33,10 +33,14 @@ namespace {
                 __additionalPackakes.push_back(nd);
                 if (data.fromRouter == ourId)
                     ++state.simuInfo.additionalArrivedReq;
+                else 
+                    ++state.simuInfo.additionalEnemyArrivedReq;
             }
             else {
                 if (data.fromRouter == ourId)
                     ++state.simuInfo.additionalArrivedResp;
+                else
+                    ++state.simuInfo.additionalEnemyArrivedResp;
                 state.simuInfo.routerBitsOccupied[data.currRouter][data.currStoreId] = false;
             }
             return true;

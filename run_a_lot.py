@@ -100,8 +100,10 @@ while True:
         for l in res.splitlines():
           if score_pattern.match(l):
               rr = int(score_pattern.match(l).group(1))
-        if rr != -1:
+        if rr != 0:
             results.append(1)
+        else:
+            results.append(0)
         print(rr)
         p = prefix + "_" + str(jj)
     if os.path.exists("stop"):

@@ -42,6 +42,8 @@ struct SimuInfo
 {
     int additionalArrivedReq = 0;
     int additionalArrivedResp = 0;
+    int additionalEnemyArrivedReq = 0;
+    int additionalEnemyArrivedResp = 0;
     std::array<std::array<bool, NSLOTS>, NROUTERS> routerBitsOccupied;
 };
 

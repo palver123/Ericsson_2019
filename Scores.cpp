@@ -6,6 +6,8 @@
 #include "Players.h"
 using namespace std;
 
+constexpr double ourHatred = 0.5;
+
 double Scores::distance_based_scoring_change_handling(const NetworkState& state, int playerId)
 {
     const auto score_request_dist = [](double d) {
@@ -23,14 +25,20 @@ double Scores::distance_based_scoring_change_handling(const NetworkState& state,
     double res = .0;
     res += arrived_request(state.simuInfo.additionalArrivedReq);
     res += arrived_resp(state.simuInfo.additionalArrivedResp);
+    res += - ourHatred * (state.simuInfo.additionalEnemyArrivedReq);
+    res += -ourHatred * arrived_resp(state.simuInfo.additionalEnemyArrivedResp);
     for (const auto& d : state.dataPackets) {
-        if (d.fromRouter != playerId || (GameContext::receivedEmptyPacket(playerId) && d.messageId >= GameContext::lowestEmptyAnswer))
+        if (GameContext::receivedEmptyPacket(playerId) && d.messageId >= GameContext::lowestEmptyAnswer) {
             continue;
+        }
+        double weight = 1.0;
+        if (d.fromRouter != playerId)
+            weight = -ourHatred;
         if (d.is_request()) {
-            res += score_request_dist(d.distance_from_target());
+            res += weight * score_request_dist(d.distance_from_target());
         }
         else {
-            res += score_resp_dist(d.distance_from_target());
+            res += weight * score_resp_dist(d.distance_from_target());
         }
     }
     return res;
