@@ -9,13 +9,14 @@ class Router:
 
 
 class Data:
-    def __init__(self, currRouter, currStore, messageId, fromRouter, toRouter, clockwise):
+    def __init__(self, currRouter, currStore, messageId, fromRouter, toRouter, clockwise, pri):
         self.currRouter = currRouter
         self.currStore = currStore
         self.messageId = messageId
         self.fromRouter = fromRouter
         self.toRouter = toRouter
         self.clockwise = clockwise
+        self.pri = pri
 
 
 class GameFrame:
@@ -65,7 +66,7 @@ def is_router(txt, pattern=re.compile(r"ROUTER (\d+)\s+(\d+)")):
     return pattern.match(txt)
 
 
-def is_data(txt, pattern=re.compile(r"DATA (\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[lr]")):
+def is_data(txt, pattern=re.compile(r"DATA (\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[lr](\s+PRI)?$")):
     return pattern.match(txt)
 
 
@@ -99,7 +100,7 @@ def read_next(inp):
             next_frame.routers.append(Router(int(res.group(1)), res.group(2)))
         elif is_data(line):
             res = is_data(line)
-            next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), res.group(4), int(res.group(5)), int(res.group(6)), line.endswith('r')))
+            next_frame.dataPackages.append(Data(int(res.group(1)), int(res.group(2)), res.group(4), int(res.group(5)), int(res.group(6)), line.endswith('r'), res.group(7) == " PRI"))
         elif is_message_piece(line):
             res = is_message_piece(line)
             msgPiece = res.group(1)
@@ -107,8 +108,7 @@ def read_next(inp):
             next_frame.receivedMessagePieces.append(msgPiece)
         elif is_prev_error(line):
             next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
-        # elif is_tick_header(line) TODO
-        elif starts_with_timestamp(line):
+        elif starts_with_timestamp(line) or is_tick_header(line):
             pass
         else:
             print("Cant parse line: {}".format(line))

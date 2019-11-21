@@ -90,6 +90,8 @@ class DisplayWindow:
         bgColor = (127, 255, 255) if isAnswer else (255, 255, 127)
         firstRow = package.currRouter < 7
         dirText = ">>" if (package.clockwise == firstRow) else "<<"
+        if package.pri:
+            dirText = dirText + "P"
         renderedText = self.font.render(dirText + package.messageId + dirText, True, (10, 10, 10), bgColor)
         margin = 3
         self.screen.blit(renderedText, (left + margin, top + margin))
