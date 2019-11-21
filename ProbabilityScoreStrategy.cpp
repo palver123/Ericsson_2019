@@ -55,7 +55,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
         }
         std::cerr << "!!! Failed creation !!!" << std::endl;
     }
-    auto moves = getPossibleMoves(turnData, true, true, false);
+    auto moves = getPossibleMoves(turnData, false, true, false);
     return command_execute(getBestMove(turnData, moves, players, Scores::future_seeing));
 }
 
