@@ -32,6 +32,11 @@ class GameLog:
     def __init__(self, game_frames):
         self.game_frames = game_frames
 
+class TickHeader:
+    def __init__(self, gameId, tickId, startRouterId):
+        self.gameId = gameId
+        self.tickId = tickId
+        self.startRouterId = startRouterId
 
 def read_line(inp):
     res = inp.readline()
@@ -68,6 +73,10 @@ def is_message_piece(txt, pattern=re.compile(r"MESSAGE (.+)$")):
     return pattern.match(txt)
 
 
+def is_tick_header(txt, pattern=re.compile(r"REQUEST (\d+)\s+(\d+)\s+(\d+)$")):
+    return pattern.match(txt)
+
+
 def is_prev_error(txt, pattern=re.compile(r"PREVIOUS (.*)$")):
     return pattern.match(txt)
 
@@ -98,6 +107,7 @@ def read_next(inp):
             next_frame.receivedMessagePieces.append(msgPiece)
         elif is_prev_error(line):
             next_frame.prev_error = next_frame.prev_error + is_prev_error(line).group(1)
+        # elif is_tick_header(line) TODO
         elif starts_with_timestamp(line):
             pass
         else:
