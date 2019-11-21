@@ -16,6 +16,7 @@ struct Data {
     int fromRouter;
     int toRouter;
     HorizontalDirection dir;
+    bool uperPrio = false;
 
     // Is the content of the data package a request or an answer to a request
     bool is_request() const;
