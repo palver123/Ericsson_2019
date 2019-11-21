@@ -74,11 +74,7 @@ std::vector<std::pair<double, Command> > Player::getMovementScoresComplex(const 
     vector<pair< double, Command> > res;
     vector<vector<pair<double, Command> > > others;
     if (players.size()) {
-#ifdef FFA
-        for (int i = 0; i < 3; ++i)
-#else
         for (int i = 0; i < static_cast<int>(players.size()); ++i)
-#endif
         {
             others.push_back(players[i]->getProbableMoves(state));
         }
