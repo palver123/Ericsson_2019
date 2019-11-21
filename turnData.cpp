@@ -24,11 +24,13 @@ int Data::will_disappear() const
     return fromRouter == toRouter && currRouter == toRouter;
 }
 
-bool GameContext::PlayerPackets::receivedEmptyPacket() const
+int GameContext::lowestEmptyAnswer = -1;
+
+bool GameContext::receivedEmptyPacket(int playerId)
 {
     return lowestEmptyAnswer != -1
-        && !received.empty()
-        && *received.rbegin() >= lowestEmptyAnswer;
+        && !playerPackets[playerId].received.empty()
+        && *playerPackets[playerId].received.rbegin() >= lowestEmptyAnswer;
 }
 
 map<int, GameContext::PlayerPackets> GameContext::playerPackets;
@@ -43,7 +45,7 @@ bool GameContext::have_all_message_pieces() const
         highestReceivedIdx = receivedPiece.first;
     }
 
-    return highestReceivedIdx == playerPackets[ourId()].lowestEmptyAnswer - 1;
+    return highestReceivedIdx == lowestEmptyAnswer - 1;
 }
 
 
@@ -51,17 +53,11 @@ void GameContext::OnMessageReceived(const MessagePiece& msg)
 {
     if (msg.message.empty())
     {
-        auto& ourPackets = playerPackets[ourId()];
-        if ((ourPackets.lowestEmptyAnswer < 0 || msg.index < ourPackets.lowestEmptyAnswer))
-            ourPackets.lowestEmptyAnswer = msg.index;
+        if (lowestEmptyAnswer < 0 || msg.index < lowestEmptyAnswer)
+            lowestEmptyAnswer = msg.index;
     }
     else
         _allReceivedPieces.emplace(msg.index, msg);
-}
-
-int GameContext::ourId() const
-{
-    return commandPrefix.routerId;
 }
 
 void GameContext::refreshPlayerPackets(const NetworkState& state)

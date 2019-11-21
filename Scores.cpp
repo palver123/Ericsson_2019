@@ -23,9 +23,8 @@ double Scores::distance_based_scoring_change_handling(const NetworkState& state,
     double res = .0;
     res += arrived_request(state.simuInfo.additionalArrivedReq);
     res += arrived_resp(state.simuInfo.additionalArrivedResp);
-    const auto& playerInfo = GameContext::playerPackets[playerId];
     for (const auto& d : state.dataPackets) {
-        if (d.fromRouter != playerId || (playerInfo.receivedEmptyPacket() && d.messageId >= playerInfo.lowestEmptyAnswer))
+        if (d.fromRouter != playerId || (GameContext::receivedEmptyPacket(playerId) && d.messageId >= GameContext::lowestEmptyAnswer))
             continue;
         if (d.is_request()) {
             res += score_request_dist(d.distance_from_target());

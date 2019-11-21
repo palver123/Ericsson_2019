@@ -23,7 +23,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
         if (p.first != ourId)
             players.emplace_back(new RandomPlayerCreatePref(p.first));
 
-    if (GameContext::playerPackets[ourId].receivedEmptyPacket())
+    if (GameContext::receivedEmptyPacket(ourId))
     {
         // Guess the solution
         if (ctx.have_all_message_pieces())
