@@ -73,11 +73,11 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
 
 Command ProbabilityScoreStrategy::getBestMove(const NetworkState& state, const std::vector<Command>& moves, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
 {
-#ifdef FFA
-    auto res = Player::getMovementScoresSimple(state, moves, ourId, Scores::distance_based_scoring_change_handling);
-#else
+//#ifdef FFA
+//    auto res = Player::getMovementScoresSimple(state, moves, ourId, Scores::distance_based_scoring_change_handling);
+//#else
     auto res = Player::getMovementScoresComplex(state, moves, ourId, players, scoring);
-#endif
+//#endif
     auto [s, c] = bestInVector(res, Command::Pass());
     std::cerr << "Best score: " << s << std::endl;
     return c;
