@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     char teamToken[] = "fQFUQhDn4LTMqWgA59Sz";
     cout << "START " << teamToken
         << " " << seed
-        << " " << "0.0.0.11"
+        << " " << "0.0.2.11"
         << " " << GAME_TYPE
         << endl;
 
