@@ -1,6 +1,6 @@
 #pragma once
 
-#define FFA
+//#define FFA
 
 #ifdef FFA
 constexpr int MAX_PACKETS_IN_SYSTEM = 2;
