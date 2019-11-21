@@ -6,7 +6,11 @@
 #include "Players.h"
 using namespace std;
 
+#ifdef FFA
+constexpr double ourHatred = 0.7;
+#else
 constexpr double ourHatred = 0.5;
+#endif
 
 double Scores::distance_based_scoring_change_handling(const NetworkState& state, int playerId)
 {
