@@ -56,6 +56,7 @@ bool Reader::readData(NetworkState& state, GameContext& ctx)
         }
         else if (!line.rfind("DATA", 0)) {
             auto& curr = state.dataPackets.emplace_back();
+            const bool isPri = line.find("PRI") != std::string::npos;
             istringstream(move(line).substr(5))
                 >> curr.currRouter
                 >> curr.currStoreId
@@ -64,6 +65,8 @@ bool Reader::readData(NetworkState& state, GameContext& ctx)
                 >> curr.fromRouter
                 >> curr.toRouter
                 >> reinterpret_cast<char&>(curr.dir);
+            curr.uperPrio = isPri;
+            line.clear();
         }
         else if (!line.rfind("MESSAGE")) {
             MessagePiece msg;
