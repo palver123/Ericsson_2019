@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     cout << "START " << teamToken
         << " " << seed
         << " " << "0.0.0.11"
+        << " " << GAME_TYPE
         << endl;
 
     Reader reader = {};
