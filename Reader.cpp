@@ -1,8 +1,20 @@
 #include <iostream>
 #include <sstream>
 #include "Reader.h"
+#include "fmt/format.h"
+#undef ERROR // fmt/format.h includes wingdi.h which reserves the word 'ERROR' for a silly macro
 
 using namespace std;
+
+#ifdef LOG_FOR_PYTHON_GUI
+#include <fstream>
+ofstream Log;
+
+void Reader::openLogFile(int mapSeed)
+{
+    Log.open(fmt::format("../logs/comm{}.log", to_string(mapSeed)));
+}
+#endif
 
 bool Reader::readData(NetworkState& state, GameContext& ctx)
 {
@@ -12,6 +24,9 @@ bool Reader::readData(NetworkState& state, GameContext& ctx)
     string line;
 
     while (getline(cin, line)) {
+#ifdef LOG_FOR_PYTHON_GUI
+        Log << line << endl;
+#endif
         if (!line.rfind('.', 0))
             return !gameOver;
 

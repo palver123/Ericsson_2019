@@ -48,6 +48,10 @@ int main(int argc, char *argv[])
     NetworkState turnData;
     GameContext context;
 
+#ifdef LOG_FOR_PYTHON_GUI
+    reader.openLogFile(seed);
+#endif
+
     ProbabilityScoreStrategy strategy;
 
     while(reader.readData(turnData, context))
