@@ -50,6 +50,18 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
 
         if (ccmds.size())
         {
+#ifdef FFA 
+            int bt = 0, tp = 0;
+            for (const auto& d : turnData.dataPackets) {
+                if (d.uperPrio)
+                    ++tp;
+                else
+                    ++bt;
+            }
+            if (std::abs(tp - bt) > 5)
+                for (auto& c : ccmds) 
+                    c.i.create.upPrio = tp < bt;
+#endif
             Command bcmd = getBestMove(turnData, ccmds, players, Scores::future_seeing);
             return command_execute(bcmd);
         }
