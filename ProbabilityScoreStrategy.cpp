@@ -46,19 +46,16 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     // If we received at least 1 empty message then all the missing message pieces are somewhere in the network and will eventually get back to us
     else if (actualData->getNumberOfPlayerPackets(ourId,true) < MAX_PACKETS_IN_SYSTEM)
     {
-        vector<Command> ccmds = Player::getPossibleMoves(turnData,ourId,false,false,_requestCounter);
+        vector<Command> ccmds = getPossibleMoves(turnData, false, false, true);
 
         if (ccmds.size())
         {
             Command bcmd = getBestMove(turnData, ccmds, players, Scores::future_seeing);
             return command_execute(bcmd);
         }
-        else
-        {
-            std::cerr << "!!! Failed creation !!!" << std::endl;
-        }
+        std::cerr << "!!! Failed creation !!!" << std::endl;
     }
-    auto moves = getPossibleMoves(turnData, true, false, true);
+    auto moves = getPossibleMoves(turnData, true, true, false);
     return command_execute(getBestMove(turnData, moves, players, Scores::future_seeing));
 }
 
