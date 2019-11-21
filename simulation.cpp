@@ -62,6 +62,7 @@ namespace {
                 data.fromRouter = c.routerId;
                 data.toRouter = Router::GetPairOfRouter(c.routerId);
                 data.dataIndex = c.packageId;
+                data.uperPrio = c.upPrio;
                 // data.messageId No one cares
                 data.currStoreId = c.storeId;
                 data.dir = state.nextDir[c.routerId];
@@ -157,9 +158,16 @@ namespace {
 
             const auto& occupied = occuMap[d.currRouter];
             int dir = Dir::dirToint(d.dir);
-            if (d.currStoreId > 0 && !occupied[d.currStoreId - 1]) {// Can move inside router
-                steps.push_back({ static_cast<char>(i),static_cast<char>(-1),static_cast<char>(0) });
-                continue;
+            if (d.uperPrio) {
+                if (d.currStoreId < (NSLOTS -1) && !occupied[d.currStoreId + 1]) {// Can move inside router
+                    steps.push_back({ static_cast<char>(i),static_cast<char>(+1),static_cast<char>(0) });
+                    continue;
+                }
+            } else {
+                if (d.currStoreId > 0 && !occupied[d.currStoreId - 1]) {// Can move inside router
+                    steps.push_back({ static_cast<char>(i),static_cast<char>(-1),static_cast<char>(0) });
+                    continue;
+                }
             }
             bool occupiedTarget = occuMap[(d.currRouter + NROUTERS + dir) % NROUTERS][d.currStoreId];
             if (!occupiedTarget) {
@@ -171,7 +179,7 @@ namespace {
                 if (a.vdir && !b.vdir) return true;
                 if (!a.vdir && b.vdir) return false;
                 if (a.vdir) {
-                    return datas[a.msgIdx].currStoreId < datas[b.msgIdx].currStoreId; // Doesnt really matter;
+                    return a.vdir > b.vdir; // Doesnt really matter;
                 } else {
                     return datas[a.msgIdx].currRouter < datas[b.msgIdx].currRouter; // New Rule applied (no exception for n-1 -> 0
                 }
@@ -417,7 +425,7 @@ bool test_9() {
     cmds.push_back(Command::Move(13, VerticalDirection::POSITIVE));
     cmds.push_back(Command::Move(12, VerticalDirection::NEGATIVE));
     cmds.push_back(Command::Move(12, VerticalDirection::NEGATIVE));
-    cmds.push_back(Command::Create(12, 4, 12 ));
+    cmds.push_back(Command::Create(12, 4, 12 , false));
 
     st = simulate(st, cmds, 12);
     const auto& datas = st.dataPackets;

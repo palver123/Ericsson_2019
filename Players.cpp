@@ -19,8 +19,10 @@ std::vector<Command> Player::getPossibleMoves(const NetworkState& turnData, int 
                 slotTaken[data.currStoreId] = true;
         }
         for (auto slot = 0; slot < NSLOTS; slot++)
-            if (!slotTaken[slot] && turnData.routerBits[ourId][slot])
-                cmds.push_back(Command::Create(ourId, slot, create_req));
+            if (!slotTaken[slot] && turnData.routerBits[ourId][slot]) {
+                cmds.push_back(Command::Create(ourId, slot, create_req, false));
+                cmds.push_back(Command::Create(ourId, slot, create_req, true));
+            }
     }
     if (move) {
         set<int> possibleRouters;

@@ -13,8 +13,9 @@ struct CreateCommand
     int routerId; // We need it to simulation (If the bot can, then it will create a new message), we can use this information in the simulation.
     int storeId;
     int packageId;
+    bool upPrio;
     std::string to_exec_string() const {
-        return fmt::format("CREATE {} {}", storeId, packageId);
+        return fmt::format("CREATE {} {}{}", storeId, packageId, upPrio ? " PRI" : "");
     }
 protected:
     CreateCommand() = default;
@@ -58,8 +59,8 @@ struct Command {
     } i;
 
     static Command Move(int routerId, VerticalDirection dir) { return Command{ MoveCommand{ routerId,dir } }; }
-    static Command Create(int routerId, int storeId, int packageId) {
-        return Command{ CreateCommand{ routerId,storeId,packageId } };
+    static Command Create(int routerId, int storeId, int packageId, bool upPrio) {
+        return Command{ CreateCommand{ routerId,storeId,packageId, upPrio } };
     }
     static Command Pass() { return Command{ PassCommand{} }; }
 
