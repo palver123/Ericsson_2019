@@ -67,8 +67,9 @@ std::vector<std::pair<double, Command> > Player::getMovementScoresSimple(const N
 
 std::vector<std::pair<double, Command> > Player::getMovementScoresComplex(const NetworkState& state, const std::vector<Command>& moves, int ourId, const vector<std::shared_ptr<Player> >& players, scoringFuction scoring)
 {
-    if (moves.empty())
+    if (moves.empty()) {
         return { { 0,Command::Pass() } };
+    }
     double origScore = scoring(state, ourId);
     vector<pair< double, Command> > res;
     vector<vector<pair<double, Command> > > others;
@@ -197,14 +198,15 @@ std::vector<std::pair<double, Command> > SmartPlayer::getScoredMoves(const Netwo
 
 std::vector<std::pair<double, Command> > SmartPlayerUnstableProb::transformScoresToProb(std::vector<std::pair<double, Command> >& moves) const
 {
-    // 10% is distributed evenly and 90% is distibuted according to score;
+    // 20% is distributed evenly and 80% is distibuted according to score;
     std::vector<std::pair<double, Command> > res;
     for (const auto& [score, cmd] : moves) {
+        double score2 = std::min(score, 1.0);
         res.push_back({ score * score, cmd });
     }
     normalizeVector(res);
     for (auto& [p, c] : res) {
-        p += 1.0 / 9 / res.size();
+        p += 1.0 / 4 / res.size();
     }
     normalizeVector(res);
     return res;

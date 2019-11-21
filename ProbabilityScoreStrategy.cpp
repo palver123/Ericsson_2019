@@ -21,7 +21,7 @@ string ProbabilityScoreStrategy::step(NetworkState& turnData, const GameContext&
     players.emplace_back(new RandomNetworkMovements{});
     for (const auto& p : GameContext::playerPackets)
         if (p.first != ourId)
-            players.emplace_back(new RandomPlayerCreatePref(p.first));
+            players.emplace_back(new SmartPlayerUnstableProb(p.first));
 
     if (GameContext::receivedEmptyPacket(ourId))
     {
