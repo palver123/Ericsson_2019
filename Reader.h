@@ -4,7 +4,7 @@
 #include <vector>
 #include "turnData.h"
 
-//#define LOG_FOR_PYTHON_GUI
+#define LOG_FOR_PYTHON_GUI
 
 struct Reader {
     // An optional field that contains a message from the server to our previous command. For example: 'PREVIOUS Wrong solution string.'

@@ -84,24 +84,31 @@ exes = ['x64/Release/Wololo2.exe']
 results = []
 prefix = os.path.join(r'C:\logs',str(datetime.now()).replace(':','_').replace('.','_').replace(' ','_'))
 jj = 0
-for i in range(0, count):
-    print(f'Running {i}')
+count = 0
+while True:
+    count = count + 1
+    print(f'Running {count}')
     for e in exes:
         jj = jj+1
         p1 = subprocess.Popen(['./console.runner/bin/ConsoleRunner.exe', '-e', e,
-                           '--host', 'ecovpn.dyndns.org', '--port', '11222', '-m', str(seeds[i])
+                           '--host', 'ecovpn.dyndns.org', '--port', '11222', '-m', str(count)
                            ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         res = p1.communicate()
         res = res[0].decode()
-        rr = -1
+        rr = 0
         desc = None
         for l in res.splitlines():
           if score_pattern.match(l):
               rr = int(score_pattern.match(l).group(1))
         if rr != -1:
-            results.append(rr)
+            results.append(1)
         print(rr)
         p = prefix + "_" + str(jj)
-
+    if os.path.exists("stop"):
+        try:
+            os.remove("stop")
+        except:
+            pass
+        break
 
 print(f"Count {len(results)}/{count}, min {min(results)}, max {max(results)}, avg {numpy.mean(results)}")
