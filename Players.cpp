@@ -74,7 +74,12 @@ std::vector<std::pair<double, Command> > Player::getMovementScoresComplex(const 
     vector<pair< double, Command> > res;
     vector<vector<pair<double, Command> > > others;
     if (players.size()) {
-        for (int i = 0; i < static_cast<int>(players.size()); ++i)
+#ifdef FFA
+        const auto nPlayerToSimulate = std::min(static_cast<int>(players.size()), 3);
+#elif
+        const auto nPlayerToSimulate = static_cast<int>(players.size());
+#endif
+        for (int i = 0; i < nPlayerToSimulate; ++i)
         {
             others.push_back(players[i]->getProbableMoves(state));
         }
